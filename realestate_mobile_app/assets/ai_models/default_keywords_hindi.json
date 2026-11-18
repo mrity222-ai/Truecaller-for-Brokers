@@ -1,0 +1,133 @@
+{
+  "version": "1.0.0",
+  "language": "hi-IN",
+  "categories": {
+    "price_and_budget": {
+      "field_target": "budget_inr",
+      "keywords": [
+        "बजट",
+        "लाख",
+        "करोड़",
+        "cr",
+        "lakh",
+        "lac",
+        "स्क्वायर फीट रेट",
+        "sqft rate",
+        "रेट क्या है",
+        "फाइनल रेट",
+        "नेगोशिएबल",
+        "कम हो जाएगा",
+        "गुंजाइश",
+        "मांग रहे हैं",
+        "डिमांड",
+        "सर्कल रेट"
+      ]
+    },
+    "inventory_and_configurations": {
+      "field_target": "inventory_type",
+      "keywords": [
+        "1BHK",
+        "2BHK",
+        "3BHK",
+        "4BHK",
+        "वन बीएचके",
+        "टू बीएचके",
+        "थ्री बीएचके",
+        "विला",
+        "villa",
+        "प्लॉट",
+        "plot",
+        "दुकान",
+        "shop",
+        "कमर्शियल",
+        "commercial",
+        "ऑफिस स्पेस",
+        "office space",
+        "पेंटहाउस",
+        "penthouse",
+        "फार्महाउस",
+        "farmhouse",
+        "स्टूडियो अपार्टमेंट",
+        "कारपेट एरिया",
+        "सुपर एरिया"
+      ]
+    },
+    "transaction_and_stages": {
+      "field_target": "sales_stage",
+      "keywords": [
+        "बयाना",
+        "biana",
+        "टोकन",
+        "token",
+        "टोकन अमाउंट",
+        "रजिस्ट्री",
+        "registry",
+        "दाखिल खारिज",
+        "mutation",
+        "साइट विजिट",
+        "site visit",
+        "विजिट करने आ रहे हैं",
+        "कल आऊंगा",
+        "प्रॉपर्टी देखनी है",
+        "मीटिंग",
+        "डील पक्की",
+        "एग्रीमेंट",
+        "agreement to sale"
+      ]
+    },
+    "facing_and_direction": {
+      "field_target": "facing_preference",
+      "keywords": [
+        "ईस्ट फेसिंग",
+        "east facing",
+        "नॉर्थ फेसिंग",
+        "north facing",
+        "पार्क फेसिंग",
+        "park facing",
+        "कॉर्नर प्लॉट",
+        "corner plot",
+        "मेन रोड",
+        "main road",
+        "धूप आती है",
+        "वास्तु के हिसाब से",
+        "road facing"
+      ]
+    },
+    "legal_and_banking": {
+      "field_target": "loan_status",
+      "keywords": [
+        "बैंक लोन",
+        "bank loan",
+        "होम लोन",
+        "home loan",
+        "PMAY",
+        "सब्सिडी",
+        "फ्रीहोल्ड",
+        "freehold",
+        "लीजहोल्ड",
+        "leasehold",
+        "अथॉरिटी अप्रूव्ड",
+        "RERA approved",
+        "रेरा नंबर",
+        "सैल डीड",
+        "sale deed",
+        "एनओसी",
+        "NOC"
+      ]
+    },
+    "possession_and_timeline": {
+      "field_target": "possession_timeline",
+      "keywords": [
+        "तुरंत शिफ्ट",
+        "ready to move",
+        "रेडी टू मूव",
+        "अंडर कंस्ट्रक्शन",
+        "under construction",
+        "अगले महीने",
+        "दिवाली तक",
+        "6 महीने बाद",
+        "पजेशन कब मिलेगा"
+      ]
+    }
+  }
+}
