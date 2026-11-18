@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/database/app_database.dart';
 import 'core/native_bridge/call_overlay_bridge.dart';
+import 'features/leads_crm/views/leads_pipeline_screen.dart';
+import 'features/call_manager/views/post_call_review_dialog.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppDatabase.instance.init();
   runApp(
     const ProviderScope(
       child: RealEstateApp(),
@@ -47,7 +51,7 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = const [
-    LeadsPipelinePlaceholder(),
+    LeadsPipelineScreen(),
     InventoryMasterPlaceholder(),
     CallLogsPlaceholder(),
     TimeMatrixPlaceholder(),
@@ -341,6 +345,23 @@ class _CallLogsPlaceholderState extends State<CallLogsPlaceholder> {
                       },
                       icon: const Icon(Icons.close),
                       label: const Text("Hide Card"),
+                    ),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        PostCallReviewDialog.show(
+                          context,
+                          phoneNumber: "+91 98765 43210",
+                          initialName: "Rahul Verma",
+                          suggestedSummary: "क्लाइंट को 85 लाख तक में सेक्टर 137 में 3BHK रेडी टू मूव चाहिए। शनिवार 4 बजे साइट विजिट फिक्स हुई है।",
+                          suggestedActionable: "शनिवार 4 बजे पारस टिएरा 3BHK फ्लैट विजिट कराना है।",
+                        );
+                      },
+                      icon: const Icon(Icons.call_end),
+                      label: const Text("Test Post-Call Dialog"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFF0F7FF),
+                        foregroundColor: const Color(0xFF0F4C81),
+                      ),
                     ),
                   ],
                 ),
