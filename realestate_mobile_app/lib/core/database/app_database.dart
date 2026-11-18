@@ -28,11 +28,14 @@ class AppDatabase {
 
     await _loadFromLocalStorage();
 
-    // If database is empty, seed with realistic real estate leads
+    // If database is empty, seed with realistic real estate leads & inventories
     if (_leadsMap.isEmpty) {
       _seedInitialData();
-      await _saveToLocalStorage();
     }
+    if (_inventoryList.isEmpty) {
+      _seedInitialInventory();
+    }
+    await _saveToLocalStorage();
 
     _isInitialized = true;
   }
@@ -127,6 +130,80 @@ class AppDatabase {
     ));
   }
 
+  void _seedInitialInventory() {
+    final now = DateTime.now();
+
+    _inventoryList.addAll([
+      InventoryEntity(
+        id: const Uuid().v4(),
+        projectName: 'Paras Tierea',
+        unitNumber: 'Tower 4 - Flat 402',
+        unitType: '3BHK',
+        superAreaSqft: 1420,
+        askingPriceInr: 8500000,
+        status: 'AVAILABLE',
+        location: 'Noida Sector 137',
+        customSpecs: {
+          'Facing': 'Park Facing',
+          'Floor': '4th of 18',
+          'Furnishing': 'Semi-Furnished',
+          'Key Location': 'Guard Room (Key #14)',
+          'Owner Expected Token': '₹2,00,000',
+        },
+        createdAt: now.subtract(const Duration(days: 20)),
+      ),
+      InventoryEntity(
+        id: const Uuid().v4(),
+        projectName: 'ATS Pristine',
+        unitNumber: 'Tower 2 - Flat 1201',
+        unitType: '4BHK',
+        superAreaSqft: 2400,
+        askingPriceInr: 21000000,
+        status: 'AVAILABLE',
+        location: 'Noida Sector 150',
+        customSpecs: {
+          'Facing': 'North-East',
+          'Balconies': '4 Large',
+          'Parking': '2 Covered Slots',
+          'Lock-in Period': 'Immediate',
+        },
+        createdAt: now.subtract(const Duration(days: 15)),
+      ),
+      InventoryEntity(
+        id: const Uuid().v4(),
+        projectName: 'Gaur City 2',
+        unitNumber: '11th Avenue - 604',
+        unitType: '2BHK',
+        superAreaSqft: 980,
+        askingPriceInr: 5200000,
+        status: 'BLOCKED',
+        location: 'Greater Noida West',
+        customSpecs: {
+          'Facing': 'Road Facing',
+          'Token Status': 'Token Received ₹50,000',
+          'Possession': 'Ready to Move',
+        },
+        createdAt: now.subtract(const Duration(days: 10)),
+      ),
+      InventoryEntity(
+        id: const Uuid().v4(),
+        projectName: 'Yamuna Green Authority Plots',
+        unitNumber: 'Plot #B-142',
+        unitType: 'Plot',
+        superAreaSqft: 1350, // 150 sqyd
+        askingPriceInr: 5800000,
+        status: 'AVAILABLE',
+        location: 'Yamuna Expressway Sector 18',
+        customSpecs: {
+          'Dimensions': '30x45 ft',
+          'Road Width': '45 Meter Wide',
+          'Registry Status': 'Freehold Cleared',
+        },
+        createdAt: now.subtract(const Duration(days: 5)),
+      ),
+    ]);
+  }
+
   // File persistence helpers
   Future<File?> _getLocalFile(String filename) async {
     try {
@@ -145,6 +222,7 @@ class AppDatabase {
       final data = {
         'leads': _leadsMap.values.map((l) => l.toJson()).toList(),
         'logs': _logsList.map((l) => l.toJson()).toList(),
+        'inventories': _inventoryList.map((i) => i.toJson()).toList(),
       };
       await file.writeAsString(jsonEncode(data));
     } catch (e) {
@@ -172,6 +250,14 @@ class AppDatabase {
         final list = data['logs'] as List;
         for (var item in list) {
           _logsList.add(InteractionLogEntity.fromJson(item as Map<String, dynamic>));
+        }
+      }
+
+      if (data.containsKey('inventories')) {
+        final list = data['inventories'] as List;
+        _inventoryList.clear();
+        for (var item in list) {
+          _inventoryList.add(InventoryEntity.fromJson(item as Map<String, dynamic>));
         }
       }
     } catch (e) {
@@ -273,5 +359,36 @@ class AppDatabase {
 
     await _saveToLocalStorage();
     return updatedLead;
+  }
+
+  // --- Inventory Master CRUD ---
+
+  List<InventoryEntity> getAllInventories() {
+    final list = List<InventoryEntity>.from(_inventoryList);
+    list.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return list;
+  }
+
+  Future<void> saveInventory(InventoryEntity item) async {
+    final index = _inventoryList.indexWhere((i) => i.id == item.id);
+    if (index >= 0) {
+      _inventoryList[index] = item;
+    } else {
+      _inventoryList.insert(0, item);
+    }
+    await _saveToLocalStorage();
+  }
+
+  Future<void> deleteInventory(String id) async {
+    _inventoryList.removeWhere((i) => i.id == id);
+    await _saveToLocalStorage();
+  }
+
+  InventoryEntity? getInventoryById(String id) {
+    try {
+      return _inventoryList.firstWhere((i) => i.id == id);
+    } catch (_) {
+      return null;
+    }
   }
 }

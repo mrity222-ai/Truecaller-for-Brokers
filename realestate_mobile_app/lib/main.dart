@@ -6,6 +6,8 @@ import 'features/leads_crm/views/leads_pipeline_screen.dart';
 import 'features/call_manager/views/post_call_review_dialog.dart';
 import 'features/on_device_ai/keyword_management/custom_keywords_screen.dart';
 import 'features/on_device_ai/views/ai_simulator_screen.dart';
+import 'features/inventory_master/views/inventory_list_screen.dart';
+import 'features/time_matrix_analytics/views/time_matrix_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,9 +56,9 @@ class _MainDashboardScreenState extends State<MainDashboardScreen> {
 
   final List<Widget> _screens = const [
     LeadsPipelineScreen(),
-    InventoryMasterPlaceholder(),
+    InventoryListScreen(),
     CallLogsPlaceholder(),
-    TimeMatrixPlaceholder(),
+    TimeMatrixScreen(),
     SettingsPlaceholder(),
   ];
 
