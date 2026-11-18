@@ -23,7 +23,7 @@ public class RealEstateApplication {
         return args -> {
             if (companyRepo.count() == 0) {
                 Company company = Company.builder()
-                        .companyName("Aveda Infra & Realty Partners")
+                        .companyName("Truecaller-for-Brokers")
                         .reraRegistrationNumber("UPRERA/AGT/2026/8941")
                         .createdAt(LocalDateTime.now())
                         .build();
