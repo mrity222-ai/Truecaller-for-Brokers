@@ -34,7 +34,7 @@ public class StoryService {
                 .shortCode(shortCode)
                 .viewCount(0)
                 .whatsappClickCount(0)
-                .expiresAt(LocalDateTime.now().addDays(30))
+                .expiresAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
                 .build();
 
