@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'core/native_bridge/call_overlay_bridge.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -235,12 +236,36 @@ class InventoryMasterPlaceholder extends StatelessWidget {
   }
 }
 
-class CallLogsPlaceholder extends StatelessWidget {
+class CallLogsPlaceholder extends StatefulWidget {
   const CallLogsPlaceholder({super.key});
 
   @override
+  State<CallLogsPlaceholder> createState() => _CallLogsPlaceholderState();
+}
+
+class _CallLogsPlaceholderState extends State<CallLogsPlaceholder> {
+  bool _hasOverlayPermission = false;
+  String _permissionStatus = "Not checked";
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermission();
+  }
+
+  Future<void> _checkPermission() async {
+    final hasPerm = await CallOverlayBridge.checkOverlayPermission();
+    if (mounted) {
+      setState(() {
+        _hasOverlayPermission = hasPerm;
+        _permissionStatus = hasPerm ? "Granted (Active)" : "Required (Action needed)";
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Padding(
+    return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         Card(
@@ -262,15 +287,63 @@ class CallLogsPlaceholder extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  "App will listen to incoming/outgoing calls. When client calls, bottom dock shows past history & Hindi AI summary.",
+                  "App listens to incoming/outgoing calls. When client calls, bottom dock shows past history & Hindi AI summary.",
                   style: TextStyle(fontSize: 13, color: Colors.black87),
                 ),
                 const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.check_circle_outline),
-                  label: const Text("Verify Overlay Permission"),
-                )
+                Row(
+                  children: [
+                    Icon(
+                      _hasOverlayPermission ? Icons.check_circle : Icons.warning_amber,
+                      color: _hasOverlayPermission ? Colors.green : Colors.orange,
+                      size: 18,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      "Overlay Permission: $_permissionStatus",
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: _hasOverlayPermission ? Colors.green.shade800 : Colors.orange.shade900,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await CallOverlayBridge.requestOverlayPermission();
+                        await _checkPermission();
+                      },
+                      icon: const Icon(Icons.settings),
+                      label: const Text("Request Permission"),
+                    ),
+                    FilledButton.icon(
+                      onPressed: () async {
+                        await CallOverlayBridge.showFloatingOverlay(
+                          clientName: "Rahul Verma (Buyer)",
+                          clientStage: "Site Visit (3BHK)",
+                          lastSummary: "Budget 85L in Noida Sec 137. Wife preferred park facing. SBI loan approved.",
+                          icebreaker: "Confirm if Saturday 4 PM site visit suits him.",
+                          phoneNumber: "+91 98765 43210",
+                        );
+                      },
+                      icon: const Icon(Icons.play_arrow),
+                      label: const Text("Test Live Floating Card"),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        await CallOverlayBridge.hideFloatingOverlay();
+                      },
+                      icon: const Icon(Icons.close),
+                      label: const Text("Hide Card"),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),

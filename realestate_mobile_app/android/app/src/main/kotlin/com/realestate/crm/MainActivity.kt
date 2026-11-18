@@ -41,19 +41,29 @@ class MainActivity: FlutterActivity() {
                     val clientStage = call.argument<String>("clientStage") ?: "New Lead"
                     val lastSummary = call.argument<String>("lastSummary") ?: "No past records found"
                     val icebreaker = call.argument<String>("icebreaker") ?: "Ask for current property requirement"
+                    val phoneNumber = call.argument<String>("phoneNumber") ?: ""
 
                     val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
-                        putExtra("CLIENT_NAME", clientName)
-                        putExtra("CLIENT_STAGE", clientStage)
-                        putExtra("LAST_SUMMARY", lastSummary)
-                        putExtra("ICEBREKER", icebreaker)
+                        action = FloatingWindowService.ACTION_SHOW
+                        putExtra(FloatingWindowService.EXTRA_CLIENT_NAME, clientName)
+                        putExtra(FloatingWindowService.EXTRA_CLIENT_STAGE, clientStage)
+                        putExtra(FloatingWindowService.EXTRA_LAST_SUMMARY, lastSummary)
+                        putExtra(FloatingWindowService.EXTRA_ICEBREAKER, icebreaker)
+                        putExtra(FloatingWindowService.EXTRA_PHONE_NUMBER, phoneNumber)
                     }
-                    startService(serviceIntent)
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(serviceIntent)
+                    } else {
+                        startService(serviceIntent)
+                    }
                     result.success(true)
                 }
                 "hideFloatingOverlay" -> {
-                    val serviceIntent = Intent(this, FloatingWindowService::class.java)
-                    stopService(serviceIntent)
+                    val serviceIntent = Intent(this, FloatingWindowService::class.java).apply {
+                        action = FloatingWindowService.ACTION_DISMISS
+                    }
+                    startService(serviceIntent)
                     result.success(true)
                 }
                 else -> result.notImplemented()
