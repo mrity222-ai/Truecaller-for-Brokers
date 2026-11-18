@@ -4,6 +4,8 @@ import 'core/database/app_database.dart';
 import 'core/native_bridge/call_overlay_bridge.dart';
 import 'features/leads_crm/views/leads_pipeline_screen.dart';
 import 'features/call_manager/views/post_call_review_dialog.dart';
+import 'features/on_device_ai/keyword_management/custom_keywords_screen.dart';
+import 'features/on_device_ai/views/ai_simulator_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -363,6 +365,16 @@ class _CallLogsPlaceholderState extends State<CallLogsPlaceholder> {
                         foregroundColor: const Color(0xFF0F4C81),
                       ),
                     ),
+                    FilledButton.tonalIcon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const AISimulatorScreen()),
+                        );
+                      },
+                      icon: const Icon(Icons.record_voice_over),
+                      label: const Text("Open AI Speech & NLP Simulator"),
+                    ),
                   ],
                 ),
               ],
@@ -401,11 +413,16 @@ class SettingsPlaceholder extends StatelessWidget {
         ),
         const Divider(),
         ListTile(
-          leading: const Icon(Icons.translate),
+          leading: const Icon(Icons.translate, color: Color(0xFF0F4C81)),
           title: const Text("Real Estate Hindi Keywords"),
           subtitle: const Text("Review & inject custom Hindi terms (बयाना, टोकन, आदि)"),
           trailing: const Icon(Icons.chevron_right),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const CustomKeywordsScreen()),
+            );
+          },
         ),
       ],
     );
