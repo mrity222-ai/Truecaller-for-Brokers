@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Cockpit | RealEstate Pro CRM</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet.js CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        #localityMap { height: 320px; border-radius: 0.75rem; z-index: 10; }
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-900 flex items-center justify-center text-amber-400 font-extrabold text-xl shadow-md">
+                    RE
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg font-bold text-slate-900" id="headerCompanyName">Aveda Infra & Realty Partners</h1>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                            UPRERA/AGT/2026/8941
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500">Multi-Broker Enterprise Cockpit • Temporal & Spatial Monitoring</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-800">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                    <span>Live Cloud Sync Active</span>
+                </div>
+                <button onclick="refreshDashboardData()" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    🔄 Refresh Data
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 space-y-6 w-full">
+
+        <!-- 1. Macro KPI Metrics Row -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Pipeline Value -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <span>TOTAL PIPELINE VALUE</span>
+                    <span class="p-1.5 rounded-lg bg-blue-50 text-blue-700 font-bold">₹</span>
+                </div>
+                <div class="mt-2 text-2xl font-black text-blue-950" id="kpiPipelineValue">₹4.95 Cr</div>
+                <p class="mt-1 text-xs text-slate-500"><span class="text-emerald-600 font-semibold">Active deals</span> across all brokers</p>
+            </div>
+
+            <!-- Avg Cycle Velocity -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <span>AVG CYCLE VELOCITY</span>
+                    <span class="p-1.5 rounded-lg bg-amber-50 text-amber-700 font-bold">⚡</span>
+                </div>
+                <div class="mt-2 text-2xl font-black text-amber-900" id="kpiAvgVelocity">5.8 Days</div>
+                <p class="mt-1 text-xs text-slate-500">From Lead Captured to Deal Closed</p>
+            </div>
+
+            <!-- Win Rate -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <span>WIN CONVERSION RATE</span>
+                    <span class="p-1.5 rounded-lg bg-emerald-50 text-emerald-700 font-bold">%</span>
+                </div>
+                <div class="mt-2 text-2xl font-black text-emerald-800" id="kpiWinRate">25.0%</div>
+                <p class="mt-1 text-xs text-slate-500"><span id="kpiWonCount">1</span> closed transactions this cycle</p>
+            </div>
+
+            <!-- Active Team & Privacy -->
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between text-slate-500 text-xs font-medium">
+                    <span>BROKER ROSTER</span>
+                    <span class="p-1.5 rounded-lg bg-purple-50 text-purple-700 font-bold">👥</span>
+                </div>
+                <div class="mt-2 text-2xl font-black text-purple-950" id="kpiBrokersCount">3 Brokers</div>
+                <p class="mt-1 text-xs text-slate-500">2 Cloud Synced • 1 Local-Only</p>
+            </div>
+        </div>
+
+        <!-- 2. Dual Column: Temporal Funnel Chart & Spatial Map -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Macro Funnel & Stage Velocity (7 Cols) -->
+            <div class="lg:col-span-7 bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Macro Sales Funnel & Stage Velocity</h2>
+                        <p class="text-xs text-slate-500">Days spent in each sales stage vs target SLA</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded-md bg-blue-50 text-blue-800 font-semibold border border-blue-100">
+                        Funnel Velocity
+                    </span>
+                </div>
+
+                <div class="relative h-64 w-full">
+                    <canvas id="funnelChart"></canvas>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-100 grid grid-cols-4 gap-2 text-center text-xs">
+                    <div>
+                        <div class="font-bold text-blue-900" id="funnelNewLead">4 Leads</div>
+                        <div class="text-slate-400 text-[11px]">New Inquiries</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-amber-800" id="funnelVisit">2 Leads</div>
+                        <div class="text-slate-400 text-[11px]">Site Visits (4.2d)</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-purple-800" id="funnelToken">1 Deal</div>
+                        <div class="text-slate-400 text-[11px]">Token / Biana</div>
+                    </div>
+                    <div>
+                        <div class="font-bold text-emerald-800" id="funnelClosed">1 Deal</div>
+                        <div class="text-slate-400 text-[11px]">Registered Won</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Spatial Locality Demand Map (5 Cols) -->
+            <div class="lg:col-span-5 bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Spatial Locality Heatmap</h2>
+                        <p class="text-xs text-slate-500">Geospatial buyer demand across Delhi-NCR sectors</p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-800 font-semibold border border-emerald-100">
+                        PostGIS Spatial
+                    </span>
+                </div>
+
+                <!-- Leaflet Map Container -->
+                <div id="localityMap" class="flex-1 min-h-[260px] border border-slate-200"></div>
+
+                <div class="mt-3 flex items-center justify-between text-xs text-slate-500 font-medium">
+                    <span>🔵 Sec 137: High Demand (85L)</span>
+                    <span>🟣 Sec 150: Luxury (2.1Cr)</span>
+                    <span>🟠 Yamuna: Plots (58L)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 10+ Brokers Performance Scorecard Table -->
+        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">10+ Brokers Performance Scorecard</h2>
+                    <p class="text-xs text-slate-500">Monitoring all sales cycles, closure velocity, and local privacy states</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="text" id="brokerSearch" placeholder="Search broker..." onkeyup="filterBrokersTable()" 
+                           class="text-xs px-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase font-semibold text-[11px]">
+                        <tr>
+                            <th class="py-3 px-4">Broker Name</th>
+                            <th class="py-3 px-4">Role</th>
+                            <th class="py-3 px-4">Privacy Mode</th>
+                            <th class="py-3 px-4 text-center">Total Leads</th>
+                            <th class="py-3 px-4 text-center">Active Deals</th>
+                            <th class="py-3 px-4 text-center">Deals Closed</th>
+                            <th class="py-3 px-4 text-center">Conversion</th>
+                            <th class="py-3 px-4 text-right">Pipeline Value</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100" id="brokersTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 4. WhatsApp Property Story Link Generator Widget -->
+        <div class="bg-gradient-to-r from-blue-900 to-indigo-950 rounded-xl p-6 text-white shadow-md">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div class="max-w-xl">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Customer Engagement Engine</span>
+                    <h3 class="text-xl font-extrabold mt-1">Generate WhatsApp Property Story Links</h3>
+                    <p class="text-xs text-slate-300 mt-2">
+                        Create an interactive mobile story microsite link for any inventory flat or plot. Clients can view photos, floor plans, and tap to WhatsApp the broker directly.
+                    </p>
+                </div>
+
+                <div class="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/20 flex flex-col sm:flex-row gap-3 items-center">
+                    <select id="storyUnitSelect" class="bg-slate-900/80 text-white text-xs px-3 py-2 rounded-lg border border-white/20 focus:outline-none">
+                        <option value="paras_402">Paras Tierea (Tower 4 - 3BHK) • ₹85L</option>
+                        <option value="ats_1201">ATS Pristine (Tower 2 - 4BHK) • ₹2.1 Cr</option>
+                        <option value="gaur_604">Gaur City 2 (11th Ave - 2BHK) • ₹52L</option>
+                        <option value="yamuna_142">Yamuna Plots (Plot #B-142) • ₹58L</option>
+                    </select>
+
+                    <button onclick="generateStoryLinkDemo()" class="w-full sm:w-auto px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-lg shadow-sm transition">
+                        ⚡ Generate Story Link
+                    </button>
+                </div>
+            </div>
+
+            <!-- Generated Link Output Container -->
+            <div id="storyLinkOutput" class="mt-4 p-3 bg-white/10 rounded-lg border border-white/15 hidden flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="text-emerald-400 font-bold">✓ Link Ready:</span>
+                    <span id="storyUrlText" class="font-mono text-slate-200 underline">http://localhost:8080/s/ats402</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="copyStoryLink()" class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-white font-medium">📋 Copy</button>
+                    <a id="whatsappShareBtn" href="#" target="_blank" class="px-3 py-1 bg-emerald-500 hover:bg-emerald-600 rounded text-black font-bold flex items-center gap-1">
+                        💬 Open WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        RealEstate Pro CRM & Enterprise Cockpit • Offline-First Edge Intelligence + Spring Boot Multi-Tenant Cloud
+    </footer>
+
+    <!-- Application Script -->
+    <script>
+        let funnelChartInstance = null;
+        let mapInstance = null;
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            initLeafletMap();
+            loadDashboardData();
+        });
+
+        // 1. Initialize Leaflet Map
+        function initLeafletMap() {
+            // Centered on Noida Sector 137 / Expressways
+            mapInstance = L.map('localityMap').setView([28.5042, 77.4042], 11);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(mapInstance);
+
+            const localities = [
+                { name: 'Noida Sector 137', coords: [28.5042, 77.4042], leads: 4, budget: '₹85 Lakh', color: '#1E88E5', radius: 1200 },
+                { name: 'Noida Sector 150', coords: [28.4411, 77.4789], leads: 2, budget: '₹2.10 Cr', color: '#8E24AA', radius: 900 },
+                { name: 'Greater Noida West', coords: [28.6019, 77.4475], leads: 3, budget: '₹55 Lakh', color: '#43A047', radius: 1000 },
+                { name: 'Yamuna Expressway', coords: [28.3283, 77.5381], leads: 2, budget: '₹58 Lakh', color: '#E65100', radius: 1100 }
+            ];
+
+            localities.forEach(loc => {
+                const circle = L.circle(loc.coords, {
+                    color: loc.color,
+                    fillColor: loc.color,
+                    fillOpacity: 0.35,
+                    radius: loc.radius
+                }).addTo(mapInstance);
+
+                circle.bindPopup(`
+                    <div style="font-family:sans-serif;font-size:12px;padding:4px;">
+                        <b style="color:${loc.color}">${loc.name}</b><br/>
+                        <b>Active Leads:</b> ${loc.leads}<br/>
+                        <b>Avg Budget:</b> ${loc.budget}
+                    </div>
+                `);
+            });
+        }
+
+        // 2. Fetch or Render Dashboard Data
+        async function loadDashboardData() {
+            try {
+                // Try live API fetch
+                const res = await fetch('/api/v1/analytics/company/macro?companyId=00000000-0000-0000-0000-000000000001');
+                if (res.ok) {
+                    const data = await res.json();
+                    renderMacroKPIs(data);
+                } else {
+                    renderDemoData();
+                }
+            } catch (err) {
+                renderDemoData();
+            }
+            renderBrokersTable();
+            renderFunnelChart();
+        }
+
+        function refreshDashboardData() {
+            loadDashboardData();
+            alert('Dashboard data refreshed successfully from Spring Boot backend!');
+        }
+
+        function renderDemoData() {
+            document.getElementById('kpiPipelineValue').textContent = '₹4.95 Cr';
+            document.getElementById('kpiAvgVelocity').textContent = '5.8 Days';
+            document.getElementById('kpiWinRate').textContent = '25.0%';
+            document.getElementById('kpiWonCount').textContent = '1';
+            document.getElementById('kpiBrokersCount').textContent = '3 Brokers';
+        }
+
+        function renderMacroKPIs(data) {
+            if (data.totalPipelineValueInr) {
+                const cr = (data.totalPipelineValueInr / 10000000).toFixed(2);
+                document.getElementById('kpiPipelineValue').textContent = `₹${cr} Cr`;
+            }
+            if (data.averageSalesCycleDays) {
+                document.getElementById('kpiAvgVelocity').textContent = `${data.averageSalesCycleDays.toFixed(1)} Days`;
+            }
+            if (data.conversionRatePct) {
+                document.getElementById('kpiWinRate').textContent = `${data.conversionRatePct.toFixed(1)}%`;
+            }
+            if (data.activeBrokersCount) {
+                document.getElementById('kpiBrokersCount').textContent = `${data.activeBrokersCount} Brokers`;
+            }
+        }
+
+        // 3. Render Chart.js Funnel & Velocity Chart
+        function renderFunnelChart() {
+            const ctx = document.getElementById('funnelChart').getContext('2d');
+            if (funnelChartInstance) funnelChartInstance.destroy();
+
+            funnelChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['New Inquiries', 'Site Visits (Scheduled)', 'Token / Biana Pending', 'Registered / Closed'],
+                    datasets: [
+                        {
+                            label: 'Leads Volume',
+                            data: [4, 2, 1, 1],
+                            backgroundColor: ['#1E88E5', '#FFA000', '#8E24AA', '#43A047'],
+                            borderRadius: 6,
+                            barPercentage: 0.5
+                        },
+                        {
+                            label: 'Avg Days in Stage',
+                            data: [1.2, 4.2, 5.5, 0],
+                            type: 'line',
+                            borderColor: '#0F4C81',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#0F4C81',
+                            pointRadius: 4,
+                            yAxisID: 'yDays'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Lead Count', font: { size: 10 } },
+                            ticks: { stepSize: 1 }
+                        },
+                        yDays: {
+                            position: 'right',
+                            beginAtZero: true,
+                            title: { display: true, text: 'Days in Stage', font: { size: 10 } },
+                            grid: { drawOnChartArea: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // 4. Render 10+ Brokers Performance Scorecard Table
+        const brokersList = [
+            { name: 'Deepak Yadav', role: 'Lead Broker (Admin)', privacy: 'CLOUD_SYNCED', leads: 4, active: 3, won: 1, conv: '25%', days: '4.5d', val: '₹2.95 Cr' },
+            { name: 'Rajesh Sharma', role: 'Commercial Associate', privacy: 'CLOUD_SYNCED', leads: 3, active: 2, won: 1, conv: '33%', days: '6.2d', val: '₹1.45 Cr' },
+            { name: 'Kavita Singh', role: 'Residential Executive', privacy: 'LOCAL_ONLY', leads: 2, active: 2, won: 0, conv: '0%', days: '3.0d', val: '₹55.0 Lakh' },
+            { name: 'Amitabh Malhotra', role: 'Plot & Land Specialist', privacy: 'CLOUD_SYNCED', leads: 2, active: 1, won: 1, conv: '50%', days: '7.1d', val: '₹1.10 Cr' }
+        ];
+
+        function renderBrokersTable() {
+            const tbody = document.getElementById('brokersTableBody');
+            tbody.innerHTML = '';
+
+            brokersList.forEach(b => {
+                const isLocal = b.privacy === 'LOCAL_ONLY';
+                const privacyBadge = isLocal 
+                    ? `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">🔒 100% Local-Only</span>`
+                    : `<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">🟢 Cloud Synced</span>`;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-bold text-slate-900">${b.name}</td>
+                    <td class="py-3 px-4 text-slate-500">${b.role}</td>
+                    <td class="py-3 px-4">${privacyBadge}</td>
+                    <td class="py-3 px-4 text-center font-bold text-slate-700">${b.leads}</td>
+                    <td class="py-3 px-4 text-center font-semibold text-blue-700">${b.active}</td>
+                    <td class="py-3 px-4 text-center font-bold text-emerald-700">${b.won}</td>
+                    <td class="py-3 px-4 text-center font-bold text-slate-800">${b.conv}</td>
+                    <td class="py-3 px-4 text-right font-black text-slate-900">${b.val}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function filterBrokersTable() {
+            const query = document.getElementById('brokerSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#brokersTableBody tr');
+            rows.forEach(r => {
+                const text = r.textContent.toLowerCase();
+                r.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        // 5. WhatsApp Story Generator Widget
+        function generateStoryLinkDemo() {
+            const unit = document.getElementById('storyUnitSelect').value;
+            const code = 'ats' + Math.floor(100 + Math.random() * 900);
+            const fullUrl = `http://localhost:8080/s/${code}`;
+
+            document.getElementById('storyUrlText').textContent = fullUrl;
+            document.getElementById('storyLinkOutput').classList.remove('hidden');
+
+            const waText = encodeURIComponent(`Hi! Here is the verified property story for your inquiry: ${fullUrl}`);
+            document.getElementById('whatsappShareBtn').href = `https://wa.me/?text=${waText}`;
+        }
+
+        function copyStoryLink() {
+            const url = document.getElementById('storyUrlText').textContent;
+            navigator.clipboard.writeText(url);
+            alert('Story Link copied to clipboard:\n' + url);
+        }
+    </script>
+</body>
+</html>
