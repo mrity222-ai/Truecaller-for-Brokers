@@ -48,3 +48,11 @@ realestate_backend_api/build/
 realestate_backend_api/.gradle/
 realestate_backend_api/*.jar
 realestate_backend_api/*.war
+
+# Documentation and Readme exclusions (Pure code repository)
+*.md
+*.doc
+*.docx
+*.pdf
+README*
+readme*
