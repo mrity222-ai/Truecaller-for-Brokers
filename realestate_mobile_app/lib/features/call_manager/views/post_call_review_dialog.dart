@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/database/app_database.dart';
-import '../../../core/database/models/sales_stage_entity.dart';
 
 class PostCallReviewDialog extends StatefulWidget {
   final String phoneNumber;

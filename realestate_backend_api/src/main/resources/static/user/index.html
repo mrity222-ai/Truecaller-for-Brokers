@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Broker Workspace | RealEstate Pro CRM</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand & Broker Info -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-blue-900 flex items-center justify-center text-amber-400 font-extrabold text-xl shadow-md">
+                    RE
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg font-bold text-slate-900">Broker Agent Workspace</h1>
+                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200">
+                            Agent Portal
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500">Truecaller-for-Brokers • Personal Pipeline & Fast Intake</p>
+                </div>
+            </div>
+
+            <!-- Agent Profile & Controls -->
+            <div class="flex items-center gap-3">
+                <!-- Sync Mode Badge -->
+                <div id="syncModePill" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-800 cursor-pointer" onclick="togglePrivacyMode()">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></span>
+                    <span id="syncModeText">Cloud Sync (Active)</span>
+                </div>
+
+                <!-- Switch to Admin View -->
+                <a href="/admin" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5">
+                    🏢 <span>Admin Cockpit</span>
+                </a>
+
+                <!-- Agent Avatar -->
+                <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+                    <div class="w-8 h-8 rounded-full bg-blue-700 text-white font-bold flex items-center justify-center text-xs shadow-sm">
+                        AS
+                    </div>
+                    <div class="hidden sm:block text-left">
+                        <div class="text-xs font-bold text-slate-800">Amit Sharma</div>
+                        <div class="text-[10px] text-slate-500">Senior Consultant</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 space-y-6 w-full">
+
+        <!-- 1. Top Agent KPI Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">My Active Leads</div>
+                <div class="text-2xl font-black text-slate-900 mt-1" id="statTotalLeads">6 Leads</div>
+                <div class="text-xs text-emerald-600 font-medium mt-1">↑ 2 New this week</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">My Pipeline Value</div>
+                <div class="text-2xl font-black text-blue-900 mt-1" id="statPipelineVal">₹2.95 Cr</div>
+                <div class="text-xs text-slate-500 mt-1">Across 4 active discussions</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Site Visits Fixed</div>
+                <div class="text-2xl font-black text-amber-700 mt-1">2 Scheduled</div>
+                <div class="text-xs text-amber-600 font-medium mt-1">⏰ Next: Sat 4:00 PM</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm">
+                <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Deals Closed (Month)</div>
+                <div class="text-2xl font-black text-emerald-700 mt-1">1 Won (₹85L)</div>
+                <div class="text-xs text-slate-500 mt-1">Commission Earned: ₹85,000</div>
+            </div>
+        </div>
+
+        <!-- 2. Navigation Tabs & Quick Action Bar -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-3">
+            <div class="flex items-center gap-2">
+                <button onclick="switchTab('leads')" id="tabBtnLeads" class="px-4 py-2 text-xs font-bold rounded-lg bg-blue-900 text-white shadow-sm transition">
+                    📋 My Client Leads
+                </button>
+                <button onclick="switchTab('ai_notes')" id="tabBtnAiNotes" class="px-4 py-2 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition">
+                    🎙️ In-Call AI Notes
+                </button>
+                <button onclick="switchTab('inventory')" id="tabBtnInventory" class="px-4 py-2 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition">
+                    🏡 Inventory Pitcher
+                </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openSchemaManagerModal()" class="px-3 py-2 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 shadow-sm flex items-center justify-center gap-1.5 transition">
+                    <span>⚙️</span> <span>Custom Fields</span>
+                </button>
+                <button onclick="openAddLeadModal()" class="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-sm flex items-center justify-center gap-1.5 transition">
+                    <span>➕</span> <span>New Client Lead</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 1: MY CLIENT LEADS (Kanban + Table) -->
+        <div id="tabContentLeads" class="space-y-4">
+            <!-- Search, Stage Filter & View Switcher -->
+            <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-col lg:flex-row items-center justify-between gap-3 text-xs">
+                <div class="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
+                    <input type="text" id="leadSearchInput" onkeyup="filterLeads()" placeholder="Search client name, phone, sector..." 
+                           class="w-full sm:w-64 px-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    
+                    <!-- View Switcher -->
+                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200 w-full sm:w-auto justify-center">
+                        <button id="viewBtnKanban" onclick="setLeadsView('kanban')" class="px-3 py-1 rounded text-xs font-bold bg-white text-blue-900 shadow-sm flex items-center gap-1 transition">
+                            🗂️ <span>Kanban Board</span>
+                        </button>
+                        <button id="viewBtnGrid" onclick="setLeadsView('grid')" class="px-3 py-1 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 transition">
+                            📋 <span>Grid Cards</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stage Filter Pills & Persona Filter (Active in Grid view, highlights in Kanban) -->
+                <div class="flex items-center gap-1.5 overflow-x-auto w-full lg:w-auto justify-start sm:justify-end" id="stagePillsContainer">
+                    <button onclick="filterByStage('ALL')" class="stage-pill active px-3 py-1 rounded-md bg-slate-900 text-white font-medium">All (<span id="pillCountAll">6</span>)</button>
+                    <button onclick="filterByStage('NEW')" class="stage-pill px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">New (<span id="pillCountNew">2</span>)</button>
+                    <button onclick="filterByStage('VISIT')" class="stage-pill px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">Site Visit (<span id="pillCountVisit">2</span>)</button>
+                    <button onclick="filterByStage('TOKEN')" class="stage-pill px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">Token/Biana (<span id="pillCountToken">1</span>)</button>
+                    <button onclick="filterByStage('WON')" class="stage-pill px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">Won (<span id="pillCountWon">1</span>)</button>
+                    <button onclick="toggleOverdueFilter()" id="pillBtnOverdue" class="stage-pill px-3 py-1 rounded-md bg-red-50 hover:bg-red-100 text-red-700 font-bold border border-red-200 flex items-center gap-1 transition">
+                        <span>⚠️ Overdue (<span id="pillCountOverdue">3</span>)</span>
+                    </button>
+                    <button onclick="toggleTodayFollowUpFilter()" id="pillBtnTodayCalls" class="stage-pill px-3 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold border border-amber-200 flex items-center gap-1 transition">
+                        <span>📅 Today's Calls (<span id="pillCountTodayCalls">2</span>)</span>
+                    </button>
+                    <!-- Persona Filter Dropdown (Step 5) -->
+                    <select id="personaFilterSelect" onchange="filterByPersona(this.value)" class="text-xs px-2.5 py-1 rounded-md border border-slate-300 bg-white font-semibold text-slate-700 focus:outline-none ml-1">
+                        <option value="ALL">All Personas</option>
+                        <option value="HNI Investor">💼 HNI Investor</option>
+                        <option value="End-User (Family)">👨‍👩‍👧 End-User</option>
+                        <option value="NRI Buyer">🌐 NRI Buyer</option>
+                        <option value="Rental Yield Seeker">📈 Rental Seeker</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- VIEW 1: VISUAL KANBAN PIPELINE BOARD -->
+            <div id="kanbanContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+                <!-- Column 1: New Inquiries -->
+                <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200 flex flex-col space-y-3 kanban-column" id="colLaneNew"
+                     ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'NEW')">
+                    <div class="flex items-center justify-between pb-2 border-b border-blue-200/60">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                            <span class="text-xs font-bold text-blue-950 uppercase tracking-wide">New Inquiries</span>
+                        </div>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200" id="headerStatNew">
+                            2 • ₹1.30 Cr
+                        </span>
+                    </div>
+                    <div class="space-y-3 min-h-[350px] p-1 rounded-lg transition-colors" id="kanbanListNew">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Column 2: Site Visits Scheduled -->
+                <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200 flex flex-col space-y-3 kanban-column" id="colLaneVisit"
+                     ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'VISIT')">
+                    <div class="flex items-center justify-between pb-2 border-b border-amber-200/60">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span class="text-xs font-bold text-amber-950 uppercase tracking-wide">Site Visits</span>
+                        </div>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200" id="headerStatVisit">
+                            2 • ₹2.35 Cr
+                        </span>
+                    </div>
+                    <div class="space-y-3 min-h-[350px] p-1 rounded-lg transition-colors" id="kanbanListVisit">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Column 3: Token / Biana Pending -->
+                <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200 flex flex-col space-y-3 kanban-column" id="colLaneToken"
+                     ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'TOKEN')">
+                    <div class="flex items-center justify-between pb-2 border-b border-purple-200/60">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                            <span class="text-xs font-bold text-purple-950 uppercase tracking-wide">Token / Biana</span>
+                        </div>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-purple-100 text-purple-800 border border-purple-200" id="headerStatToken">
+                            1 • ₹2.10 Cr
+                        </span>
+                    </div>
+                    <div class="space-y-3 min-h-[350px] p-1 rounded-lg transition-colors" id="kanbanListToken">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Column 4: Closed Won -->
+                <div class="bg-slate-50/80 rounded-xl p-3 border border-slate-200 flex flex-col space-y-3 kanban-column" id="colLaneWon"
+                     ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'WON')">
+                    <div class="flex items-center justify-between pb-2 border-b border-emerald-200/60">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="text-xs font-bold text-emerald-950 uppercase tracking-wide">Deals Closed</span>
+                        </div>
+                        <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200" id="headerStatWon">
+                            1 • ₹58 Lakh
+                        </span>
+                    </div>
+                    <div class="space-y-3 min-h-[350px] p-1 rounded-lg transition-colors" id="kanbanListWon">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: LEADS GRID CARDS (Alternative View) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden" id="leadsCardsContainer">
+                <!-- Dynamically populated by JS in Grid Mode -->
+            </div>
+        </div>
+
+        <!-- TAB 2: IN-CALL AI NOTES & LIVE SIMULATOR -->
+        <div id="tabContentAiNotes" class="hidden space-y-4">
+            <!-- Header Explainer -->
+            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white rounded-2xl p-5 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Edge AI Online
+                        </span>
+                        <h3 class="font-extrabold text-base">Truecaller-for-Brokers Live In-Call AI & Hindi NLP Simulator</h3>
+                    </div>
+                    <p class="text-xs text-blue-100 max-w-2xl leading-relaxed">
+                        Simulate live broker phone calls in Hindi/Hinglish. Our on-device NLP parses token biana amounts, budgets, property configurations, bank loans, and timelines in real time and automatically creates leads in your pipeline.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="loadAiScenario('sc1')" class="px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-xs font-semibold border border-white/20 transition">
+                        ⚡ Quick Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- LIVE SIMULATOR WORKBENCH -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+                    <div>
+                        <h4 class="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+                            <span>🎙️</span> <span>Live Audio Call & Speech-to-Text Simulator</span>
+                        </h4>
+                        <p class="text-xs text-slate-500">Pick any real-estate broker call scenario below or type your own Hindi audio transcription.</p>
+                    </div>
+
+                    <!-- Presets Chips -->
+                    <div class="flex flex-wrap gap-1 text-[11px]">
+                        <button onclick="loadAiScenario('sc1')" class="px-2.5 py-1 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-900 font-semibold border border-blue-200 transition">
+                            🏢 4BHK Luxury (₹2.1 Cr)
+                        </button>
+                        <button onclick="loadAiScenario('sc2')" class="px-2.5 py-1 rounded-md bg-emerald-50 hover:bg-emerald-100 text-emerald-900 font-semibold border border-emerald-200 transition">
+                            🏡 3BHK Paras (₹85 Lakh)
+                        </button>
+                        <button onclick="loadAiScenario('sc3')" class="px-2.5 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-900 font-semibold border border-amber-200 transition">
+                            📐 Plot (₹58 Lakh)
+                        </button>
+                        <button onclick="loadAiScenario('sc4')" class="px-2.5 py-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-900 font-semibold border border-purple-200 transition">
+                            ⚡ Resale 2BHK (₹52 Lakh)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Caller Info Bar -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-3 rounded-xl border border-slate-200/80">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Simulated Caller / Client Name</label>
+                        <input type="text" id="simClientName" value="Vikram Singhal (Investor)" 
+                               class="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white font-medium focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Simulated Phone Number</label>
+                        <input type="text" id="simClientPhone" value="+91 98119 87654" 
+                               class="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white font-mono font-medium focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                </div>
+
+                <!-- Transcript Input with Audio Visualizer -->
+                <div>
+                    <div class="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5">
+                        <label>Spoken Hindi / Hinglish Conversation Transcript:</label>
+                        <span class="text-[11px] text-emerald-700 font-mono font-bold flex items-center gap-1">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Parsing Active
+                        </span>
+                    </div>
+                    <textarea id="simTranscriptInput" rows="3" oninput="runLiveNlpExtraction()" 
+                              placeholder="Yahan Hindi ya Hinglish call speech type ya paste karein..."
+                              class="w-full px-3.5 py-2.5 text-xs text-slate-800 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 leading-relaxed font-sans bg-amber-50/20">Namaste bhaiya, mujhe ATS Pristine Sector 150 me 4BHK luxury flat dekhna hai. Budget 2.10 Cr tak ready hai. 5 lakh token biana cheque kal de dunga, registry agle mahine karenge.</textarea>
+                </div>
+
+                <!-- REAL-TIME EXTRACTED ENTITIES DASHBOARD -->
+                <div class="space-y-2 pt-2">
+                    <div class="flex items-center justify-between">
+                        <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wide flex items-center gap-1.5">
+                            <span>🔍</span> <span>On-Device NLP Entity Extraction (Live Results)</span>
+                        </h5>
+                        <span class="text-[11px] text-slate-500">Auto-extracted from speech in &lt; 15ms</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-xs">
+                        <!-- Entity 1: Budget -->
+                        <div class="p-2.5 rounded-xl bg-blue-50/80 border border-blue-200">
+                            <div class="text-[10px] text-blue-700 font-bold uppercase tracking-wider">💰 Budget</div>
+                            <div class="font-extrabold text-blue-950 text-xs mt-0.5 truncate" id="simBadgeBudget">₹2.10 Cr</div>
+                        </div>
+
+                        <!-- Entity 2: Token / Biana -->
+                        <div class="p-2.5 rounded-xl bg-purple-50/80 border border-purple-200">
+                            <div class="text-[10px] text-purple-700 font-bold uppercase tracking-wider">🏷️ Token / Biana</div>
+                            <div class="font-extrabold text-purple-950 text-xs mt-0.5 truncate" id="simBadgeToken">5 lakh token biana</div>
+                        </div>
+
+                        <!-- Entity 3: Property Type -->
+                        <div class="p-2.5 rounded-xl bg-slate-100 border border-slate-200">
+                            <div class="text-[10px] text-slate-600 font-bold uppercase tracking-wider">🏢 Unit Type</div>
+                            <div class="font-extrabold text-slate-900 text-xs mt-0.5 truncate" id="simBadgeType">4BHK Luxury Flat</div>
+                        </div>
+
+                        <!-- Entity 4: Locality -->
+                        <div class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200">
+                            <div class="text-[10px] text-amber-700 font-bold uppercase tracking-wider">📍 Locality</div>
+                            <div class="font-extrabold text-amber-950 text-xs mt-0.5 truncate" id="simBadgeLocality">Noida Sector 150</div>
+                        </div>
+
+                        <!-- Entity 5: Loan / Financing -->
+                        <div class="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-200">
+                            <div class="text-[10px] text-emerald-700 font-bold uppercase tracking-wider">🏦 Loan / Finance</div>
+                            <div class="font-extrabold text-emerald-950 text-xs mt-0.5 truncate" id="simBadgeLoan">Self Funded / Cash</div>
+                        </div>
+
+                        <!-- Entity 6: Action Timeline -->
+                        <div class="p-2.5 rounded-xl bg-rose-50/80 border border-rose-200">
+                            <div class="text-[10px] text-rose-700 font-bold uppercase tracking-wider">📅 Action Timeline</div>
+                            <div class="font-extrabold text-rose-950 text-xs mt-0.5 truncate" id="simBadgeTimeline">Tomorrow Cheque / Meeting</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Convert CTA Bar -->
+                <div class="pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <p class="text-xs text-slate-500">
+                        ⚡ Ek click me bina kisi manual typing ke ye lead CRM Pipeline me add ho jayegi.
+                    </p>
+                    <button onclick="convertAiSimToLead()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-800 hover:to-indigo-800 text-white font-extrabold text-xs shadow-md flex items-center justify-center gap-2 transition transform active:scale-95">
+                        <span>⚡ Convert to CRM Lead & Add to Kanban</span>
+                        <span>➔</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- HISTORICAL AUDIT STREAM -->
+            <div class="space-y-2 pt-2">
+                <h4 class="font-extrabold text-sm text-slate-900 flex items-center gap-1.5">
+                    <span>📋</span> <span>Verified Speech-to-Text Call Audio Logs (Mobile Synced)</span>
+                </h4>
+                <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden" id="aiNotesContainer">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: INVENTORY PITCHER & WHATSAPP STORY -->
+        <div id="tabContentInventory" class="hidden space-y-4">
+            <div class="bg-white rounded-xl p-5 border border-slate-200 shadow-sm">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+                    <div>
+                        <h3 class="font-bold text-sm text-slate-900 uppercase tracking-wide">Available Units & Story Generator (Inventory Master)</h3>
+                        <p class="text-xs text-slate-500">Pick any flat or plot to pitch to your buyer with 1-click WhatsApp mobile story or auto-match with leads.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <select id="invTypeFilter" onchange="renderInventory()" class="text-xs px-3 py-1.5 rounded-lg border border-slate-300">
+                            <option value="ALL">All Property Types</option>
+                            <option value="3BHK">3 BHK Flats</option>
+                            <option value="4BHK">4 BHK Luxury</option>
+                            <option value="PLOT">Residential Plots</option>
+                            <option value="2BHK">2 BHK Budget</option>
+                            <option value="VILLA">Villas</option>
+                        </select>
+                        <select id="invStatusFilter" onchange="renderInventory()" class="text-xs px-3 py-1.5 rounded-lg border border-slate-300">
+                            <option value="ALL">All Statuses</option>
+                            <option value="AVAILABLE">Available</option>
+                            <option value="UNDER_TOKEN">Token Received</option>
+                            <option value="SOLD">Sold</option>
+                        </select>
+                        <button onclick="openAddUnitModal()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 transition">
+                            <span>➕</span> <span>Add Unit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4" id="inventoryGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal: Add New Client Lead -->
+    <div id="addLeadModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-base text-slate-900">➕ Add New Client Lead</h3>
+                <button onclick="closeAddLeadModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+            </div>
+
+            <form id="newLeadForm" onsubmit="handleSaveLead(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Client Full Name *</label>
+                    <input type="text" id="inputClientName" required placeholder="e.g. Ramesh Chandra" 
+                           class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Phone Number *</label>
+                        <input type="tel" id="inputClientPhone" required placeholder="+91 98765 43210" 
+                               class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Budget (₹ in Lakhs/Cr) *</label>
+                        <input type="text" id="inputBudget" required placeholder="e.g. 85 Lakh / 1.2 Cr" 
+                               class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Preferred Locality</label>
+                        <select id="inputLocality" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                            <option value="Noida Sector 137">Noida Sector 137</option>
+                            <option value="Noida Sector 150">Noida Sector 150</option>
+                            <option value="Greater Noida West">Greater Noida West</option>
+                            <option value="Yamuna Expressway">Yamuna Expressway</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Inventory Type</label>
+                        <select id="inputType" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                            <option value="3BHK">3 BHK Apartment</option>
+                            <option value="2BHK">2 BHK Apartment</option>
+                            <option value="4BHK">4 BHK Luxury</option>
+                            <option value="PLOT">Residential Plot</option>
+                            <option value="VILLA">Independent Villa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Sales Stage</label>
+                    <select id="inputStage" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                        <option value="NEW">New Inquiry</option>
+                        <option value="VISIT">Site Visit Scheduled</option>
+                        <option value="TOKEN">Token / Biana Pending</option>
+                        <option value="WON">Deal Closed (Won)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Notes & Requirements (Hindi/English)</label>
+                    <textarea id="inputNotes" rows="2" placeholder="Wife wants park facing flat, SBI home loan ready..." 
+                              class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600"></textarea>
+                </div>
+
+                <!-- Dynamic Custom Schema Qualification Attributes (Step 5) -->
+                <div class="pt-2 border-t border-slate-100 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <label class="block font-bold text-slate-800 text-[11px] uppercase tracking-wide">🎯 Qualification Attributes (Custom Schema)</label>
+                        <span class="text-[10px] text-blue-800 cursor-pointer hover:underline" onclick="openSchemaManagerModal()">⚙️ Manage Fields</span>
+                    </div>
+                    <div id="dynamicSchemaFieldsContainer" class="grid grid-cols-2 gap-2 text-xs">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeAddLeadModal()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-lg bg-blue-900 hover:bg-blue-800 text-white font-bold shadow-md">
+                        Save Lead & Sync
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Post-Call Review & Follow-Up Scheduler -->
+    <div id="postCallModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[92vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">📞</span>
+                        <h3 class="font-extrabold text-base text-slate-900">Post-Call Review & Follow-Up</h3>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-0.5">
+                        Client: <b id="pcmClientName" class="text-slate-900">-</b> • 
+                        <span id="pcmClientPhone" class="font-mono text-slate-600">-</span> •
+                        <span id="pcmClientStageBadge" class="font-bold text-blue-700 px-1.5 py-0.5 rounded bg-blue-50 border border-blue-200 text-[10px]">-</span>
+                    </div>
+                </div>
+                <button onclick="closePostCallModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Hidden Lead ID -->
+            <input type="hidden" id="pcmLeadId" value="">
+
+            <!-- 1. Call Disposition -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700">1. Call Outcome / Disposition *</label>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5" id="pcmDispositionGrid">
+                    <button type="button" onclick="setPcmDisposition('Interested & Positive', this)" class="pcm-disp-btn p-2 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-900 text-xs font-bold text-left flex items-center gap-1.5 transition">
+                        <span>🟢</span> <span>Interested</span>
+                    </button>
+                    <button type="button" onclick="setPcmDisposition('Site Visit Agreed', this)" class="pcm-disp-btn p-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-medium text-left flex items-center gap-1.5 hover:bg-slate-50 transition">
+                        <span>🟡</span> <span>Visit Agreed</span>
+                    </button>
+                    <button type="button" onclick="setPcmDisposition('Budget Negotiation', this)" class="pcm-disp-btn p-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-medium text-left flex items-center gap-1.5 hover:bg-slate-50 transition">
+                        <span>🟠</span> <span>Negotiation</span>
+                    </button>
+                    <button type="button" onclick="setPcmDisposition('Busy / Call Back', this)" class="pcm-disp-btn p-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-medium text-left flex items-center gap-1.5 hover:bg-slate-50 transition">
+                        <span>🔴</span> <span>Call Back</span>
+                    </button>
+                    <button type="button" onclick="setPcmDisposition('Ringing / No Answer', this)" class="pcm-disp-btn p-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-medium text-left flex items-center gap-1.5 hover:bg-slate-50 transition">
+                        <span>⚪</span> <span>No Answer</span>
+                    </button>
+                    <button type="button" onclick="setPcmDisposition('Not Interested', this)" class="pcm-disp-btn p-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-medium text-left flex items-center gap-1.5 hover:bg-slate-50 transition">
+                        <span>❌</span> <span>Dropped</span>
+                    </button>
+                </div>
+                <input type="hidden" id="pcmSelectedDisposition" value="Interested & Positive">
+            </div>
+
+            <!-- 2. Quick Note Chips -->
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-slate-700">2. Quick Notes (1-Click Hindi / English Chips)</label>
+                <div class="flex flex-wrap gap-1 text-[11px]">
+                    <button type="button" onclick="appendPcmNote('Weekend ko site visit finalize hui hai.')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-900 border border-slate-200 transition">
+                        + Weekend Site Visit
+                    </button>
+                    <button type="button" onclick="appendPcmNote('Budget max 1.2 Cr hai, Noida Sector 78 prefer kar rahe hain.')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-900 border border-slate-200 transition">
+                        + Budget 1.2 Cr Max
+                    </button>
+                    <button type="button" onclick="appendPcmNote('SBI bank se loan sanctioned hai, ready to buy.')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-900 border border-slate-200 transition">
+                        + SBI Loan Passed
+                    </button>
+                    <button type="button" onclick="appendPcmNote('Family ke sath baith kar decision lenge.')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-900 border border-slate-200 transition">
+                        + Family Decision
+                    </button>
+                    <button type="button" onclick="appendPcmNote('Token biana ₹2 lakh cheque ready hai.')" class="px-2 py-0.5 rounded bg-slate-100 hover:bg-blue-100 text-slate-700 hover:text-blue-900 border border-slate-200 transition">
+                        + Token ₹2L Ready
+                    </button>
+                </div>
+                <textarea id="pcmNotesInput" rows="2" placeholder="Discussion summary likhein ya upar diye chips tap karein..." 
+                          class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600 leading-relaxed"></textarea>
+            </div>
+
+            <!-- 3. Smart Follow-Up Scheduler -->
+            <div class="space-y-1.5 bg-amber-50/60 p-3 rounded-xl border border-amber-200/80">
+                <div class="flex items-center justify-between">
+                    <label class="block text-xs font-bold text-amber-950">3. Next Follow-Up Schedule *</label>
+                    <span class="text-[10px] text-amber-800 font-semibold">Quick Presets:</span>
+                </div>
+                <div class="flex flex-wrap gap-1 text-[11px]">
+                    <button type="button" onclick="setPcmFollowUpPreset('TODAY_5PM')" class="px-2 py-0.5 rounded bg-white hover:bg-amber-100 text-amber-900 font-semibold border border-amber-300 shadow-sm transition">
+                        ⏰ Aaj 5:00 PM
+                    </button>
+                    <button type="button" onclick="setPcmFollowUpPreset('TOMORROW_11AM')" class="px-2 py-0.5 rounded bg-white hover:bg-amber-100 text-amber-900 font-semibold border border-amber-300 shadow-sm transition">
+                        ⏰ Kal 11:00 AM
+                    </button>
+                    <button type="button" onclick="setPcmFollowUpPreset('TOMORROW_4PM')" class="px-2 py-0.5 rounded bg-white hover:bg-amber-100 text-amber-900 font-semibold border border-amber-300 shadow-sm transition">
+                        ⏰ Kal 4:00 PM
+                    </button>
+                    <button type="button" onclick="setPcmFollowUpPreset('WEEKEND')" class="px-2 py-0.5 rounded bg-white hover:bg-amber-100 text-amber-900 font-semibold border border-amber-300 shadow-sm transition">
+                        📅 Saturday 11:00 AM
+                    </button>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mt-2">
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Date</label>
+                        <input type="date" id="pcmFollowUpDate" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-semibold text-slate-600 mb-0.5">Time</label>
+                        <input type="time" id="pcmFollowUpTime" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. Optional Auto Stage Advance -->
+            <div id="pcmAutoStageBox" class="p-2.5 bg-blue-50/70 rounded-lg border border-blue-200 flex items-center justify-between text-xs">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="pcmAutoStageCheck" checked class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4">
+                    <label for="pcmAutoStageCheck" class="text-blue-950 font-semibold cursor-pointer">
+                        Auto-advance stage to <span id="pcmTargetStageLabel" class="font-bold underline">Site Visit Scheduled</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-end gap-2">
+                <button type="button" onclick="closePostCallModal()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs">
+                    Cancel
+                </button>
+                <button type="button" onclick="savePostCallModal()" class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md flex items-center gap-1.5">
+                    <span>💾 Save & Schedule Follow-Up</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Dynamic Custom Schema Fields Manager (Step 5) -->
+    <div id="schemaManagerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[92vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">⚙️</span>
+                        <h3 class="font-extrabold text-base text-slate-900">Dynamic Custom Schema Engine</h3>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">Customize lead qualification attributes, card badges, and drop-down options without touching backend code.</p>
+                </div>
+                <button onclick="closeSchemaManagerModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <!-- Active Custom Fields List -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-slate-700 uppercase tracking-wide">Active Qualification Fields</label>
+                    <span class="text-[10px] text-slate-400">Rendered on lead cards & forms</span>
+                </div>
+                <div id="schemaFieldsListContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Add New Field Sub-Form -->
+            <form id="newSchemaFieldForm" onsubmit="handleAddNewSchemaField(event)" class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3 text-xs">
+                <div class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                    <span>➕</span> <span>Create New Custom Field</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-0.5">Field Name / Label *</label>
+                        <input type="text" id="newSchemaLabel" required placeholder="e.g. Car Parking Count" 
+                               class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-0.5">Field Emoji / Icon</label>
+                        <input type="text" id="newSchemaIcon" placeholder="e.g. 🚗 or 📄" value="🏷️" 
+                               class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-0.5">Dropdown Options (Comma separated) *</label>
+                    <input type="text" id="newSchemaOptions" required placeholder="e.g. 1 Covered, 2 Covered, Open Parking" 
+                           class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                    <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-700">
+                        <input type="checkbox" id="newSchemaShowBadge" checked class="rounded text-blue-600 w-4 h-4">
+                        <span>Show mini-badge on Kanban cards</span>
+                    </label>
+                    <button type="submit" class="px-3.5 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white font-bold transition shadow-sm">
+                        + Add Field
+                    </button>
+                </div>
+            </form>
+
+            <!-- Modal Footer -->
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-end">
+                <button type="button" onclick="closeSchemaManagerModal()" class="px-5 py-2 rounded-lg bg-slate-900 text-white font-bold text-xs shadow-md">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add New Property Unit (Step 6) -->
+    <div id="addUnitModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🏡</span>
+                    <h3 class="font-extrabold text-base text-slate-900" id="unitModalTitle">Add New Property Unit</h3>
+                </div>
+                <button onclick="closeAddUnitModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <form id="newUnitForm" onsubmit="handleSaveUnit(event)" class="space-y-3 text-xs">
+                <input type="hidden" id="editUnitId" value="">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Project Name *</label>
+                        <input type="text" id="unitProject" required placeholder="e.g. ATS Pristine" 
+                               class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Unit / Flat No. *</label>
+                        <input type="text" id="unitNumber" required placeholder="e.g. Tower 2 - Unit 1201" 
+                               class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Locality / Sector *</label>
+                        <input type="text" id="unitLocation" required placeholder="e.g. Sector 150, Noida" 
+                               class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Property Type *</label>
+                        <select id="unitType" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                            <option value="3BHK">3 BHK Apartment</option>
+                            <option value="4BHK">4 BHK Luxury Flat</option>
+                            <option value="2BHK">2 BHK Budget Flat</option>
+                            <option value="PLOT">Residential Plot</option>
+                            <option value="VILLA">Independent Villa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Area / Size *</label>
+                        <input type="text" id="unitArea" required placeholder="e.g. 1,425 sq.ft." 
+                               class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">Asking Price *</label>
+                        <input type="text" id="unitPrice" required placeholder="e.g. ₹85 Lakh or ₹2.10 Cr" 
+                               class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Inventory Status</label>
+                    <select id="unitStatus" class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600">
+                        <option value="AVAILABLE">AVAILABLE (Open for Sale)</option>
+                        <option value="UNDER_TOKEN">UNDER_TOKEN (Biana Received)</option>
+                        <option value="SOLD">SOLD (Deal Closed)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-1">Features & Key Highlights</label>
+                    <textarea id="unitFeatures" rows="2" placeholder="e.g. Park Facing • Modular Kitchen • 2 Balconies • 1 Covered Parking" 
+                              class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600"></textarea>
+                </div>
+
+                <div class="pt-3 flex items-center justify-end gap-2 border-t border-slate-100">
+                    <button type="button" onclick="closeAddUnitModal()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold shadow-md">
+                        Save Unit & Publish
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Match Unit with Buyer Leads (Step 6) -->
+    <div id="matchBuyersModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-4 max-h-[92vh] overflow-y-auto">
+            <div class="flex items-start justify-between border-b border-slate-100 pb-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🎯</span>
+                        <h3 class="font-extrabold text-base text-slate-900">Buyer Leads Matching Engine</h3>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-0.5">
+                        Matching pipeline prospects for: <b id="matchModalUnitTitle" class="text-slate-900">-</b> (<span id="matchModalUnitPrice" class="text-blue-900 font-bold">-</span>)
+                    </div>
+                </div>
+                <button onclick="closeMatchBuyersModal()" class="text-slate-400 hover:text-slate-600 text-2xl font-bold leading-none">&times;</button>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-slate-700 uppercase tracking-wide">Matched Prospects in Pipeline</span>
+                    <span class="text-[11px] text-slate-500 font-semibold" id="matchCountLabel">Matches Found</span>
+                </div>
+                <div id="matchedBuyersListContainer" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center justify-end">
+                <button type="button" onclick="closeMatchBuyersModal()" class="px-5 py-2 rounded-lg bg-slate-900 text-white font-bold text-xs shadow-md">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toastMessage" class="fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-2xl text-xs font-semibold hidden flex items-center gap-2 z-50 transition transform translate-y-2">
+        <span id="toastIcon">✓</span>
+        <span id="toastText">Action completed successfully!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+        Broker Agent Portal • RealEstate Pro CRM • Edge AI + Delta Cloud Sync
+    </footer>
+
+    <!-- App JavaScript Logic -->
+    <script>
+        // Dynamic Custom Schema Definition (Step 5)
+        let customSchemaFields = [
+            { 
+                key: 'buyerPersona', 
+                label: 'Buyer Persona', 
+                options: ['End-User (Family)', 'HNI Investor', 'NRI Buyer', 'Rental Yield Seeker'], 
+                icon: '💼', 
+                showBadgeOnCard: true 
+            },
+            { 
+                key: 'possessionTimeline', 
+                label: 'Possession Timeline', 
+                options: ['Ready to Move (RTM)', 'Within 6 Months', 'Under Construction', 'New Launch'], 
+                icon: '⏱️', 
+                showBadgeOnCard: true 
+            },
+            { 
+                key: 'facingVastu', 
+                label: 'Facing / Vastu', 
+                options: ['Park Facing', 'East Facing (Vastu)', 'Corner Unit', 'Road Facing'], 
+                icon: '🧭', 
+                showBadgeOnCard: true 
+            }
+        ];
+
+        let currentPersonaFilter = 'ALL';
+
+        // Sample Leads Data with Stage Time, Follow-Up Schedule & Custom Attributes
+        let leads = [
+            {
+                id: 'lead-1',
+                name: 'Rahul Verma',
+                phone: '+919876543210',
+                budget: '₹85 Lakh',
+                location: 'Noida Sector 137',
+                type: '3BHK',
+                stage: 'VISIT',
+                stageLabel: 'Site Visit Scheduled',
+                stageColor: 'bg-amber-100 text-amber-800 border-amber-200',
+                stageDays: 1.2, // Within 3d SLA (On Track)
+                nextFollowUp: 'Today, 5:00 PM',
+                isTodayFollowUp: true,
+                lastDisposition: 'Site Visit Agreed',
+                customAttributes: {
+                    buyerPersona: 'End-User (Family)',
+                    possessionTimeline: 'Ready to Move (RTM)',
+                    facingVastu: 'Park Facing'
+                },
+                notes: 'Wife preferred park facing. SBI home loan sanctioned. Site visit on Saturday 4 PM.',
+                lastActive: 'Today, 2:30 PM'
+            },
+            {
+                id: 'lead-2',
+                name: 'Sunil Mittal',
+                phone: '+919811223344',
+                budget: '₹2.10 Cr',
+                location: 'Noida Sector 150',
+                type: '4BHK',
+                stage: 'TOKEN',
+                stageLabel: 'Token / Biana Pending',
+                stageColor: 'bg-purple-100 text-purple-800 border-purple-200',
+                stageDays: 2.5, // Within 7d SLA (On Track)
+                nextFollowUp: 'Tomorrow, 11:00 AM',
+                isTodayFollowUp: false,
+                lastDisposition: 'Token Discussion',
+                customAttributes: {
+                    buyerPersona: 'HNI Investor',
+                    possessionTimeline: 'Ready to Move (RTM)',
+                    facingVastu: 'Corner Unit'
+                },
+                notes: 'Token ₹5 Lakh biana discussion completed. Cheque awaited tomorrow morning.',
+                lastActive: 'Yesterday'
+            },
+            {
+                id: 'lead-3',
+                name: 'Kavita Sharma',
+                phone: '+919822334455',
+                budget: '₹55 Lakh',
+                location: 'Greater Noida West',
+                type: '2BHK',
+                stage: 'NEW',
+                stageLabel: 'New Inquiry',
+                stageColor: 'bg-blue-100 text-blue-800 border-blue-200',
+                stageDays: 2.1, // Overdue (> 1.0d SLA)
+                nextFollowUp: 'Today, 6:30 PM',
+                isTodayFollowUp: true,
+                lastDisposition: 'Budget Negotiation',
+                customAttributes: {
+                    buyerPersona: 'End-User (Family)',
+                    possessionTimeline: 'Within 6 Months',
+                    facingVastu: 'East Facing (Vastu)'
+                },
+                notes: 'Looking for ready to move society. Gaur City preferred.',
+                lastActive: '2 days ago'
+            },
+            {
+                id: 'lead-4',
+                name: 'Dr. Anand Kumar',
+                phone: '+919833445566',
+                budget: '₹58 Lakh',
+                location: 'Yamuna Expressway',
+                type: 'PLOT',
+                stage: 'WON',
+                stageLabel: 'Deal Closed (Won)',
+                stageColor: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+                stageDays: 6.0, // Deal Closed Won
+                nextFollowUp: 'Completed',
+                isTodayFollowUp: false,
+                lastDisposition: 'Deal Closed',
+                customAttributes: {
+                    buyerPersona: 'HNI Investor',
+                    possessionTimeline: 'Ready to Move (RTM)',
+                    facingVastu: 'Road Facing'
+                },
+                notes: 'Plot #B-142 registration finished. Registry fee deposited.',
+                lastActive: 'Nov 18'
+            },
+            {
+                id: 'lead-5',
+                name: 'Prakash Rao',
+                phone: '+919844556677',
+                budget: '₹75 Lakh',
+                location: 'Noida Sector 137',
+                type: '3BHK',
+                stage: 'NEW',
+                stageLabel: 'New Inquiry',
+                stageColor: 'bg-blue-100 text-blue-800 border-blue-200',
+                stageDays: 3.2, // Overdue (> 1.0d SLA)
+                nextFollowUp: 'Tomorrow, 3:00 PM',
+                isTodayFollowUp: false,
+                lastDisposition: 'Brochure Sent',
+                customAttributes: {
+                    buyerPersona: 'NRI Buyer',
+                    possessionTimeline: 'Under Construction',
+                    facingVastu: 'Park Facing'
+                },
+                notes: 'Caller via 99acres inquiry. Requested brochure on WhatsApp.',
+                lastActive: '3 days ago'
+            },
+            {
+                id: 'lead-6',
+                name: 'Deepak Tyagi',
+                phone: '+919855667788',
+                budget: '₹1.50 Cr',
+                location: 'Noida Sector 150',
+                type: '3BHK',
+                stage: 'VISIT',
+                stageLabel: 'Site Visit Scheduled',
+                stageColor: 'bg-amber-100 text-amber-800 border-amber-200',
+                stageDays: 4.5, // Overdue (> 3.0d SLA)
+                nextFollowUp: 'Saturday, 11:00 AM',
+                isTodayFollowUp: false,
+                lastDisposition: 'Corner Flat Visit',
+                customAttributes: {
+                    buyerPersona: 'Rental Yield Seeker',
+                    possessionTimeline: 'Ready to Move (RTM)',
+                    facingVastu: 'Corner Unit'
+                },
+                notes: 'Corner flat preferred in high floor. Visit Sunday 11 AM.',
+                lastActive: '4 days ago'
+            }
+        ];
+
+        // Sample AI Call Notes
+        let aiNotes = [
+            {
+                clientName: 'Rahul Verma',
+                phone: '+919876543210',
+                time: 'Today, 2:30 PM (Call duration: 3m 42s)',
+                summaryHindi: 'क्लाइंट को सेक्टर 137 में 85 लाख के अंदर 3BHK फ्लैट चाहिए। वाइफ को पार्क फेसिंग पसंद है। SBI बैंक लोन 70 लाख तक पास है। शनिवार 4 बजे पारस टिएरा साइट विजिट पक्की हुई है।',
+                detectedKeywords: ['बयाना ₹2 लाख', '85 लाख', '3BHK', 'पार्क फेसिंग', 'SBI होम लोन', 'शनिवार 4 बजे'],
+                actionItem: 'शनिवार शाम 4 बजे पारस टिएरा 3BHK फ्लैट दिखाना है।'
+            },
+            {
+                clientName: 'Sunil Mittal',
+                phone: '+919811223344',
+                time: 'Yesterday, 5:15 PM (Call duration: 5m 12s)',
+                summaryHindi: 'ATS Pristine 4BHK के लिए ₹2.1 Cr फाइनल डील हुई। ₹5 लाख टोकन बयाना चेक कल सुबह कलेक्ट करना है। रजिस्ट्री अगले महीने 15 तारीख को कराने की सहमति दी है।',
+                detectedKeywords: ['टोकन ₹5 लाख', '2.10 करोड़', '4BHK', 'ATS Pristine', 'रजिस्ट्री 15 तारीख'],
+                actionItem: 'कल सुबह 10:30 बजे क्लाइंट ऑफिस से ₹5L चेक कलेक्ट करना।'
+            }
+        ];
+
+        // Sample Inventory
+        let inventory = [
+            {
+                id: 'ats402',
+                project: 'Paras Tierea',
+                location: 'Sector 137, Noida',
+                unit: 'Tower 4 - Unit 402',
+                type: '3BHK',
+                area: '1,425 sq.ft.',
+                price: '₹85 Lakh',
+                status: 'AVAILABLE',
+                features: 'Park Facing • Modular Kitchen • 2 Balconies'
+            },
+            {
+                id: 'ats1201',
+                project: 'ATS Pristine',
+                location: 'Sector 150, Noida',
+                unit: 'Tower 2 - Unit 1201',
+                type: '4BHK',
+                area: '2,850 sq.ft.',
+                price: '₹2.10 Cr',
+                status: 'AVAILABLE',
+                features: 'Golf Course View • Servant Room • 2 Parking'
+            },
+            {
+                id: 'gaur604',
+                project: 'Gaur City 2',
+                location: 'Greater Noida West',
+                unit: '11th Ave - Unit 604',
+                type: '2BHK',
+                area: '980 sq.ft.',
+                price: '₹52 Lakh',
+                status: 'AVAILABLE',
+                features: 'Ready to Move • Near Metro • Low Maintenance'
+            },
+            {
+                id: 'yamuna142',
+                project: 'Yamuna Residential Plots',
+                location: 'Yamuna Expressway',
+                unit: 'Block B - Plot #142',
+                type: 'PLOT',
+                area: '162 sq.mtr (194 sq.yd)',
+                price: '₹58 Lakh',
+                status: 'AVAILABLE',
+                features: 'Wide 18m Road • Authority Allotted • Gated Colony'
+            }
+        ];
+
+        let currentStageFilter = 'ALL';
+        let currentLeadsView = 'kanban';
+        let isOverdueFilterOnly = false;
+        let isTodayCallsFilterOnly = false;
+        let isLocalOnly = false;
+
+        // SLA Thresholds (Target Days per Stage)
+        const STAGE_SLA_DAYS = {
+            NEW: 1.0,     // 24 Hours SLA
+            VISIT: 3.0,   // 3 Days SLA
+            TOKEN: 7.0,   // 7 Days SLA
+            WON: 9999.0   // No SLA limit
+        };
+
+        // Micro-Velocity & SLA Calculator
+        function getLeadSlaInfo(lead) {
+            const sla = STAGE_SLA_DAYS[lead.stage] || 3.0;
+            const days = (lead.stageDays !== undefined) ? lead.stageDays : 0.8;
+            if (lead.stage === 'WON') {
+                return {
+                    isOverdue: false,
+                    badgeHtml: `<span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-semibold">✓ Won (${days}d)</span>`,
+                    cardBorder: 'border-l-4 border-l-emerald-500',
+                    timeText: `Closed in ${days}d`
+                };
+            }
+            if (days > sla) {
+                const over = (days - sla).toFixed(1);
+                return {
+                    isOverdue: true,
+                    badgeHtml: `<span class="px-1.5 py-0.5 rounded bg-red-100 text-red-700 border border-red-300 text-[10px] font-bold animate-pulse flex items-center gap-0.5">⚠️ Overdue (+${over}d)</span>`,
+                    cardBorder: 'border-l-4 border-l-red-500 ring-1 ring-red-200',
+                    timeText: `⏱️ ${days}d in stage (SLA: ${sla}d)`
+                };
+            } else if (days >= sla * 0.75) {
+                return {
+                    isOverdue: false,
+                    badgeHtml: `<span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-300 text-[10px] font-semibold flex items-center gap-0.5">⏳ Approaching SLA</span>`,
+                    cardBorder: 'border-l-4 border-l-amber-400',
+                    timeText: `⏱️ ${days}d in stage (SLA: ${sla}d)`
+                };
+            } else {
+                return {
+                    isOverdue: false,
+                    badgeHtml: `<span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 border border-slate-200 text-[10px] font-medium flex items-center gap-0.5">● On Track (${days}d)</span>`,
+                    cardBorder: 'border-l-4 border-l-blue-400',
+                    timeText: `⏱️ ${days}d in stage (SLA: ${sla}d)`
+                };
+            }
+        }
+
+        // Toggle Overdue Leads Filter
+        function toggleOverdueFilter() {
+            isOverdueFilterOnly = !isOverdueFilterOnly;
+            const btn = document.getElementById('pillBtnOverdue');
+            if (isOverdueFilterOnly) {
+                btn.className = "stage-pill px-3 py-1 rounded-md bg-red-600 text-white font-bold border border-red-700 flex items-center gap-1 transition shadow-sm";
+                showToast("Filtering only SLA Overdue leads!");
+            } else {
+                btn.className = "stage-pill px-3 py-1 rounded-md bg-red-50 hover:bg-red-100 text-red-700 font-bold border border-red-200 flex items-center gap-1 transition";
+                showToast("Showing all leads.");
+            }
+            renderLeads();
+        }
+
+        // Toggle Today's Scheduled Calls Filter
+        function toggleTodayFollowUpFilter() {
+            isTodayCallsFilterOnly = !isTodayCallsFilterOnly;
+            const btn = document.getElementById('pillBtnTodayCalls');
+            if (isTodayCallsFilterOnly) {
+                btn.className = "stage-pill px-3 py-1 rounded-md bg-amber-600 text-white font-bold border border-amber-700 flex items-center gap-1 transition shadow-sm";
+                showToast("Filtering leads with calls scheduled for TODAY!");
+            } else {
+                btn.className = "stage-pill px-3 py-1 rounded-md bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold border border-amber-200 flex items-center gap-1 transition";
+                showToast("Showing all leads.");
+            }
+            renderLeads();
+        }
+
+        // Initialize on Load
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLeads();
+            renderAiNotes();
+            renderInventory();
+            runLiveNlpExtraction();
+        });
+
+        // Tab Switcher
+        function switchTab(tab) {
+            document.getElementById('tabContentLeads').classList.add('hidden');
+            document.getElementById('tabContentAiNotes').classList.add('hidden');
+            document.getElementById('tabContentInventory').classList.add('hidden');
+
+            document.getElementById('tabBtnLeads').className = "px-4 py-2 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition";
+            document.getElementById('tabBtnAiNotes').className = "px-4 py-2 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition";
+            document.getElementById('tabBtnInventory').className = "px-4 py-2 text-xs font-bold rounded-lg bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 transition";
+
+            if (tab === 'leads') {
+                document.getElementById('tabContentLeads').classList.remove('hidden');
+                document.getElementById('tabBtnLeads').className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-900 text-white shadow-sm transition";
+            } else if (tab === 'ai_notes') {
+                document.getElementById('tabContentAiNotes').classList.remove('hidden');
+                document.getElementById('tabBtnAiNotes').className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-900 text-white shadow-sm transition";
+                runLiveNlpExtraction();
+            } else if (tab === 'inventory') {
+                document.getElementById('tabContentInventory').classList.remove('hidden');
+                document.getElementById('tabBtnInventory').className = "px-4 py-2 text-xs font-bold rounded-lg bg-blue-900 text-white shadow-sm transition";
+            }
+        }
+
+        // View Switcher (Kanban vs Grid)
+        function setLeadsView(view) {
+            currentLeadsView = view;
+            const btnKanban = document.getElementById('viewBtnKanban');
+            const btnGrid = document.getElementById('viewBtnGrid');
+            const kanbanContainer = document.getElementById('kanbanContainer');
+            const gridContainer = document.getElementById('leadsCardsContainer');
+
+            if (view === 'kanban') {
+                btnKanban.className = "px-3 py-1 rounded text-xs font-bold bg-white text-blue-900 shadow-sm flex items-center gap-1 transition";
+                btnGrid.className = "px-3 py-1 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 transition";
+                kanbanContainer.classList.remove('hidden');
+                gridContainer.classList.add('hidden');
+            } else {
+                btnGrid.className = "px-3 py-1 rounded text-xs font-bold bg-white text-blue-900 shadow-sm flex items-center gap-1 transition";
+                btnKanban.className = "px-3 py-1 rounded text-xs font-semibold text-slate-600 hover:text-slate-900 flex items-center gap-1 transition";
+                kanbanContainer.classList.add('hidden');
+                gridContainer.classList.remove('hidden');
+            }
+            renderLeads();
+        }
+
+        // Parse Budget to Crores float
+        function parseBudgetToCr(budgetStr) {
+            if (!budgetStr) return 0;
+            const str = budgetStr.replace(/[^0-9.]/g, '');
+            const num = parseFloat(str);
+            if (isNaN(num)) return 0;
+            if (budgetStr.toLowerCase().includes('cr')) {
+                return num;
+            } else if (budgetStr.toLowerCase().includes('lakh') || budgetStr.toLowerCase().includes('l')) {
+                return num / 100.0;
+            }
+            return num >= 100 ? num / 100.0 : num;
+        }
+
+        // Format Crores to String
+        function formatCrToString(valCr) {
+            if (valCr >= 1.0) {
+                return `₹${valCr.toFixed(2)} Cr`;
+            } else {
+                const lakh = Math.round(valCr * 100);
+                return `₹${lakh} Lakh`;
+            }
+        }
+
+        // Calculate Totals per Stage & Overdue Counts & Scheduled Calls
+        function calcStageTotals() {
+            const stages = ['NEW', 'VISIT', 'TOKEN', 'WON'];
+            const counts = { NEW: 0, VISIT: 0, TOKEN: 0, WON: 0 };
+            const sums = { NEW: 0, VISIT: 0, TOKEN: 0, WON: 0 };
+            const overdueCounts = { NEW: 0, VISIT: 0, TOKEN: 0, WON: 0 };
+            let totalOverdue = 0;
+            let totalTodayCalls = 0;
+
+            leads.forEach(l => {
+                if (counts[l.stage] !== undefined) {
+                    counts[l.stage]++;
+                    sums[l.stage] += parseBudgetToCr(l.budget);
+                    const sla = getLeadSlaInfo(l);
+                    if (sla.isOverdue) {
+                        overdueCounts[l.stage]++;
+                        totalOverdue++;
+                    }
+                    if (l.isTodayFollowUp) {
+                        totalTodayCalls++;
+                    }
+                }
+            });
+
+            // Update Header Stats with SLA Alerts
+            document.getElementById('headerStatNew').innerHTML = `${counts.NEW} • ${formatCrToString(sums.NEW)}${overdueCounts.NEW > 0 ? ` <span class="text-red-700 font-extrabold" title="${overdueCounts.NEW} Overdue">(⚠️ ${overdueCounts.NEW})</span>` : ''}`;
+            document.getElementById('headerStatVisit').innerHTML = `${counts.VISIT} • ${formatCrToString(sums.VISIT)}${overdueCounts.VISIT > 0 ? ` <span class="text-red-700 font-extrabold" title="${overdueCounts.VISIT} Overdue">(⚠️ ${overdueCounts.VISIT})</span>` : ''}`;
+            document.getElementById('headerStatToken').innerHTML = `${counts.TOKEN} • ${formatCrToString(sums.TOKEN)}${overdueCounts.TOKEN > 0 ? ` <span class="text-red-700 font-extrabold" title="${overdueCounts.TOKEN} Overdue">(⚠️ ${overdueCounts.TOKEN})</span>` : ''}`;
+            document.getElementById('headerStatWon').textContent = `${counts.WON} • ${formatCrToString(sums.WON)}`;
+
+            // Update Pill Counts
+            document.getElementById('pillCountAll').textContent = leads.length;
+            document.getElementById('pillCountNew').textContent = counts.NEW;
+            document.getElementById('pillCountVisit').textContent = counts.VISIT;
+            document.getElementById('pillCountToken').textContent = counts.TOKEN;
+            document.getElementById('pillCountWon').textContent = counts.WON;
+            document.getElementById('pillCountOverdue').textContent = totalOverdue;
+            const todayCallsEl = document.getElementById('pillCountTodayCalls');
+            if (todayCallsEl) todayCallsEl.textContent = totalTodayCalls;
+
+            // Update Top Agent KPIs
+            document.getElementById('statTotalLeads').textContent = `${leads.length} Leads`;
+            const activePipelineCr = sums.NEW + sums.VISIT + sums.TOKEN;
+            document.getElementById('statPipelineVal').textContent = formatCrToString(activePipelineCr);
+        }
+
+        // Drag & Drop Handlers
+        let draggedLeadId = null;
+
+        function handleDragStart(e, leadId) {
+            draggedLeadId = leadId;
+            e.dataTransfer.setData('text/plain', leadId);
+            e.dataTransfer.effectAllowed = 'move';
+            setTimeout(() => {
+                e.target.classList.add('opacity-40');
+            }, 0);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('opacity-40');
+            document.querySelectorAll('.kanban-column').forEach(col => {
+                col.classList.remove('border-blue-500', 'bg-blue-50/50');
+            });
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('border-blue-500', 'bg-blue-50/50');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50/50');
+        }
+
+        function handleDrop(e, targetStage) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('border-blue-500', 'bg-blue-50/50');
+            const leadId = e.dataTransfer.getData('text/plain') || draggedLeadId;
+            if (leadId) {
+                updateLeadStage(leadId, targetStage);
+            }
+        }
+
+        // 1-Click Shift Stage Helper
+        function shiftLeadStage(leadId, direction) {
+            const stages = ['NEW', 'VISIT', 'TOKEN', 'WON'];
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+            const currentIdx = stages.indexOf(lead.stage);
+            const nextIdx = currentIdx + direction;
+            if (nextIdx >= 0 && nextIdx < stages.length) {
+                updateLeadStage(leadId, stages[nextIdx]);
+            }
+        }
+
+        // Main Render Leads Controller
+        function renderLeads() {
+            calcStageTotals();
+            renderKanbanBoard();
+            renderGridCards();
+        }
+
+        // Render Kanban Board
+        function renderKanbanBoard() {
+            const search = (document.getElementById('leadSearchInput')?.value || '').toLowerCase();
+            const stages = ['NEW', 'VISIT', 'TOKEN', 'WON'];
+            const stageCols = {
+                NEW: document.getElementById('kanbanListNew'),
+                VISIT: document.getElementById('kanbanListVisit'),
+                TOKEN: document.getElementById('kanbanListToken'),
+                WON: document.getElementById('kanbanListWon')
+            };
+
+            // Clear columns
+            stages.forEach(st => {
+                if (stageCols[st]) stageCols[st].innerHTML = '';
+            });
+
+            const filtered = leads.filter(l => {
+                if (isOverdueFilterOnly) {
+                    const sla = getLeadSlaInfo(l);
+                    if (!sla.isOverdue) return false;
+                }
+                if (isTodayCallsFilterOnly) {
+                    if (!l.isTodayFollowUp) return false;
+                }
+                if (currentPersonaFilter !== 'ALL') {
+                    if (!l.customAttributes || l.customAttributes.buyerPersona !== currentPersonaFilter) return false;
+                }
+                const matchSearch = l.name.toLowerCase().includes(search) || 
+                                    l.phone.includes(search) || 
+                                    l.location.toLowerCase().includes(search) ||
+                                    l.budget.toLowerCase().includes(search);
+                return matchSearch;
+            });
+
+            stages.forEach(st => {
+                const colLeads = filtered.filter(l => l.stage === st);
+                const colContainer = stageCols[st];
+                if (!colContainer) return;
+
+                if (colLeads.length === 0) {
+                    colContainer.innerHTML = `
+                        <div class="h-32 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg text-slate-400 text-[11px] p-2 text-center">
+                            <span>Drop card here</span>
+                        </div>
+                    `;
+                    return;
+                }
+
+                colContainer.innerHTML = colLeads.map(lead => {
+                    const stIdx = stages.indexOf(lead.stage);
+                    const canMoveLeft = stIdx > 0;
+                    const canMoveRight = stIdx < stages.length - 1;
+                    const sla = getLeadSlaInfo(lead);
+                    const customBadgesHtml = (lead.customAttributes ? Object.entries(lead.customAttributes).map(([k, val]) => {
+                        const fDef = customSchemaFields.find(f => f.key === k);
+                        if (!fDef || !fDef.showBadgeOnCard || !val) return '';
+                        return `<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-900 border border-indigo-200 text-[9px] font-semibold flex items-center gap-0.5"><span>${fDef.icon || '🏷️'}</span><span>${val}</span></span>`;
+                    }).filter(Boolean).join('') : '');
+
+                    return `
+                        <div draggable="true" 
+                             ondragstart="handleDragStart(event, '${lead.id}')"
+                             ondragend="handleDragEnd(event)"
+                             class="bg-white rounded-xl p-3 border border-slate-200 shadow-sm hover:shadow-md transition cursor-grab active:cursor-grabbing space-y-2.5 ${sla.cardBorder}">
+                            
+                            <!-- Card Header -->
+                            <div class="flex items-start justify-between gap-1.5">
+                                <div>
+                                    <h4 class="font-bold text-xs text-slate-900 hover:text-blue-900 transition">${lead.name}</h4>
+                                    <div class="text-[11px] text-slate-500 font-mono mt-0.5">${lead.phone}</div>
+                                </div>
+                                <div class="flex flex-col items-end gap-1">
+                                    <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${lead.stageColor}">
+                                        ${lead.stageLabel}
+                                    </span>
+                                    ${sla.badgeHtml}
+                                </div>
+                            </div>
+
+                            <!-- Time in Stage / SLA Indicator -->
+                            <div class="text-[10px] text-slate-500 font-medium flex items-center justify-between bg-slate-50/80 px-2 py-0.5 rounded border border-slate-100">
+                                <span>${sla.timeText}</span>
+                                ${sla.isOverdue ? '<span class="text-red-700 font-bold animate-pulse text-[9px]">ACTION REQ</span>' : ''}
+                            </div>
+
+                            <!-- Next Follow-up Pill (Step 3) -->
+                            ${lead.nextFollowUp ? `
+                            <div class="flex items-center justify-between text-[10px] px-2 py-1 rounded ${lead.isTodayFollowUp ? 'bg-amber-50 text-amber-900 border border-amber-200 font-bold' : 'bg-slate-50 text-slate-600 border border-slate-200 font-medium'}">
+                                <span class="flex items-center gap-1">
+                                    <span>${lead.isTodayFollowUp ? '🔔' : '⏰'}</span>
+                                    <span>Next: <b>${lead.nextFollowUp}</b></span>
+                                </span>
+                                ${lead.lastDisposition ? `<span class="text-[9px] px-1.5 py-0.2 rounded bg-white border border-slate-200 font-semibold truncate max-w-[100px]">${lead.lastDisposition}</span>` : ''}
+                            </div>
+                            ` : ''}
+
+                            <!-- Dynamic Custom Schema Badges (Step 5) -->
+                            ${customBadgesHtml ? `
+                            <div class="flex flex-wrap items-center gap-1">
+                                ${customBadgesHtml}
+                            </div>
+                            ` : ''}
+
+                            <!-- Budget & Locality Pills -->
+                            <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-950 font-bold border border-blue-100">
+                                    ${lead.budget}
+                                </span>
+                                <span class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
+                                    ${lead.type}
+                                </span>
+                                <span class="text-slate-500 truncate text-[10px] w-full">
+                                    📍 ${lead.location}
+                                </span>
+                            </div>
+
+                            <!-- Notes Preview -->
+                            <p class="text-[11px] text-slate-600 line-clamp-2 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-tight">
+                                ${lead.notes}
+                            </p>
+
+                            <!-- Footer Actions: WhatsApp, Log Call & Move -->
+                            <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-1 text-[11px]">
+                                <div class="flex items-center gap-1">
+                                    <a href="https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}?text=Namaste%20${encodeURIComponent(lead.name)},%20main%20RealEstate%20CRM%20se%20aapke%20${encodeURIComponent(lead.type)}%20flat%20ke%20regarding%20connect%20kar%20raha%20hoon." 
+                                       target="_blank" 
+                                       class="px-2 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 flex items-center gap-1 transition text-[10px]">
+                                        💬 <span>WhatsApp</span>
+                                    </a>
+                                    <button onclick="openPostCallModal('${lead.id}')" 
+                                            class="px-2 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold border border-blue-200 flex items-center gap-1 transition text-[10px]" 
+                                            title="Post-Call Review & Schedule Follow-Up">
+                                        📞 <span>Log</span>
+                                    </button>
+                                </div>
+
+                                <!-- Shift Buttons -->
+                                <div class="flex items-center gap-1">
+                                    <button onclick="shiftLeadStage('${lead.id}', -1)" ${!canMoveLeft ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:bg-slate-200"'} 
+                                            title="Move stage backwards" class="p-1 px-1.5 rounded bg-slate-100 text-slate-700 font-bold text-xs">
+                                        ◀
+                                    </button>
+                                    <button onclick="shiftLeadStage('${lead.id}', 1)" ${!canMoveRight ? 'disabled class="opacity-30 cursor-not-allowed"' : 'class="hover:bg-slate-200"'} 
+                                            title="Move stage forwards" class="p-1 px-1.5 rounded bg-slate-100 text-slate-700 font-bold text-xs">
+                                        ▶
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // Render Alternative Grid View
+        function renderGridCards() {
+            const container = document.getElementById('leadsCardsContainer');
+            const search = (document.getElementById('leadSearchInput')?.value || '').toLowerCase();
+
+            const filtered = leads.filter(l => {
+                if (isOverdueFilterOnly) {
+                    const sla = getLeadSlaInfo(l);
+                    if (!sla.isOverdue) return false;
+                }
+                if (isTodayCallsFilterOnly) {
+                    if (!l.isTodayFollowUp) return false;
+                }
+                if (currentPersonaFilter !== 'ALL') {
+                    if (!l.customAttributes || l.customAttributes.buyerPersona !== currentPersonaFilter) return false;
+                }
+                const matchStage = (currentStageFilter === 'ALL') || (l.stage === currentStageFilter);
+                const matchSearch = l.name.toLowerCase().includes(search) || 
+                                    l.phone.includes(search) || 
+                                    l.location.toLowerCase().includes(search) ||
+                                    l.budget.toLowerCase().includes(search);
+                return matchStage && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-xl border border-slate-200">
+                        <p class="text-sm font-semibold">Koi lead nahi mili!</p>
+                        <p class="text-xs mt-1">Search filter change karein ya nayi lead add karein.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(lead => {
+                const sla = getLeadSlaInfo(lead);
+                const customBadgesHtml = (lead.customAttributes ? Object.entries(lead.customAttributes).map(([k, val]) => {
+                    const fDef = customSchemaFields.find(f => f.key === k);
+                    if (!fDef || !fDef.showBadgeOnCard || !val) return '';
+                    return `<span class="px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-900 border border-indigo-200 text-[9px] font-semibold flex items-center gap-0.5"><span>${fDef.icon || '🏷️'}</span><span>${val}</span></span>`;
+                }).filter(Boolean).join('') : '');
+
+                return `
+                <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-3 ${sla.cardBorder}">
+                    <div>
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900">${lead.name}</h4>
+                                <div class="text-xs text-slate-500 font-mono mt-0.5">${lead.phone}</div>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${lead.stageColor}">
+                                    ${lead.stageLabel}
+                                </span>
+                                ${sla.badgeHtml}
+                            </div>
+                        </div>
+
+                        <div class="mt-2 text-[11px] text-slate-500 bg-slate-50 px-2 py-1 rounded flex items-center justify-between border border-slate-100">
+                            <span>${sla.timeText}</span>
+                            ${sla.isOverdue ? '<span class="text-red-700 font-bold animate-pulse text-[10px]">Overdue Alert</span>' : ''}
+                        </div>
+
+                        <!-- Next Follow-up Pill (Step 3) -->
+                        ${lead.nextFollowUp ? `
+                        <div class="mt-2 text-[11px] px-2.5 py-1 rounded flex items-center justify-between ${lead.isTodayFollowUp ? 'bg-amber-50 text-amber-900 border border-amber-200 font-bold' : 'bg-slate-50 text-slate-600 border border-slate-200 font-medium'}">
+                            <span class="flex items-center gap-1">
+                                <span>${lead.isTodayFollowUp ? '🔔' : '⏰'}</span>
+                                <span>Next: <b>${lead.nextFollowUp}</b></span>
+                            </span>
+                            ${lead.lastDisposition ? `<span class="text-[9px] px-1.5 py-0.5 rounded bg-white border border-slate-200 font-semibold">${lead.lastDisposition}</span>` : ''}
+                        </div>
+                        ` : ''}
+
+                        <!-- Dynamic Custom Schema Badges (Step 5) -->
+                        ${customBadgesHtml ? `
+                        <div class="mt-2 flex flex-wrap items-center gap-1">
+                            ${customBadgesHtml}
+                        </div>
+                        ` : ''}
+
+                        <div class="mt-3 flex items-center gap-2 text-xs">
+                            <span class="px-2 py-0.5 rounded bg-blue-50 text-blue-900 font-bold border border-blue-100">
+                                ${lead.budget}
+                            </span>
+                            <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
+                                ${lead.type}
+                            </span>
+                            <span class="text-slate-500 truncate text-[11px]">
+                                📍 ${lead.location}
+                            </span>
+                        </div>
+
+                        <p class="mt-2.5 text-xs text-slate-600 line-clamp-2 bg-slate-50 p-2 rounded-lg border border-slate-100">
+                            ${lead.notes}
+                        </p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <a href="https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}?text=Namaste%20${encodeURIComponent(lead.name)},%20main%20RealEstate%20CRM%20se%20aapke%20${encodeURIComponent(lead.type)}%20flat%20ke%20regarding%20connect%20kar%20raha%20hoon." 
+                               target="_blank" 
+                               class="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold border border-emerald-200 flex items-center gap-1 transition text-xs">
+                                💬 <span>WhatsApp</span>
+                            </a>
+                            <button onclick="openPostCallModal('${lead.id}')" 
+                                    class="px-2.5 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 font-bold border border-blue-200 flex items-center gap-1 transition text-xs" 
+                                    title="Post-Call Review & Schedule Follow-Up">
+                                📞 <span>Log</span>
+                            </button>
+                        </div>
+
+                        <select onchange="updateLeadStage('${lead.id}', this.value)" class="text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200 rounded px-2 py-1 focus:outline-none">
+                            <option value="NEW" ${lead.stage === 'NEW' ? 'selected' : ''}>New Inquiry</option>
+                            <option value="VISIT" ${lead.stage === 'VISIT' ? 'selected' : ''}>Site Visit</option>
+                            <option value="TOKEN" ${lead.stage === 'TOKEN' ? 'selected' : ''}>Token / Biana</option>
+                            <option value="WON" ${lead.stage === 'WON' ? 'selected' : ''}>Closed Won</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // Filter by stage
+        function filterByStage(stage) {
+            currentStageFilter = stage;
+            document.querySelectorAll('.stage-pill').forEach(btn => {
+                btn.className = "stage-pill px-3 py-1 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium";
+            });
+            event.target.className = "stage-pill active px-3 py-1 rounded-md bg-slate-900 text-white font-medium";
+            renderLeads();
+        }
+
+        function filterLeads() {
+            renderLeads();
+        }
+
+        // Update stage
+        function updateLeadStage(id, newStage) {
+            const lead = leads.find(l => l.id === id);
+            if (lead) {
+                const isStageChanged = lead.stage !== newStage;
+                lead.stage = newStage;
+                if (isStageChanged) {
+                    lead.stageDays = 0; // Reset SLA stage timer upon stage change
+                }
+                if (newStage === 'NEW') {
+                    lead.stageLabel = 'New Inquiry';
+                    lead.stageColor = 'bg-blue-100 text-blue-800 border-blue-200';
+                } else if (newStage === 'VISIT') {
+                    lead.stageLabel = 'Site Visit Scheduled';
+                    lead.stageColor = 'bg-amber-100 text-amber-800 border-amber-200';
+                } else if (newStage === 'TOKEN') {
+                    lead.stageLabel = 'Token / Biana Pending';
+                    lead.stageColor = 'bg-purple-100 text-purple-800 border-purple-200';
+                } else if (newStage === 'WON') {
+                    lead.stageLabel = 'Deal Closed (Won)';
+                    lead.stageColor = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                }
+                showToast(`Lead stage updated to ${lead.stageLabel}!`);
+                renderLeads();
+            }
+        }
+
+        // ==========================================
+        // STEP 3: POST-CALL REVIEW & SCHEDULER LOGIC
+        // ==========================================
+        function openPostCallModal(leadId) {
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            document.getElementById('pcmLeadId').value = lead.id;
+            document.getElementById('pcmClientName').textContent = lead.name;
+            document.getElementById('pcmClientPhone').textContent = lead.phone;
+            document.getElementById('pcmClientStageBadge').textContent = lead.stageLabel || lead.stage;
+            document.getElementById('pcmNotesInput').value = lead.notes || '';
+
+            // Preselect disposition
+            setPcmDisposition(lead.lastDisposition || 'Interested & Positive');
+
+            // Preselect Follow-Up: Today 5 PM
+            setPcmFollowUpPreset('TODAY_5PM');
+
+            // Auto-advance toggle logic
+            const autoStageBox = document.getElementById('pcmAutoStageBox');
+            if (lead.stage === 'NEW') {
+                autoStageBox.classList.remove('hidden');
+                document.getElementById('pcmTargetStageLabel').textContent = 'Site Visit Scheduled';
+                document.getElementById('pcmAutoStageCheck').checked = true;
+            } else if (lead.stage === 'VISIT') {
+                autoStageBox.classList.remove('hidden');
+                document.getElementById('pcmTargetStageLabel').textContent = 'Token / Biana Pending';
+                document.getElementById('pcmAutoStageCheck').checked = false;
+            } else {
+                autoStageBox.classList.add('hidden');
+            }
+
+            document.getElementById('postCallModal').classList.remove('hidden');
+        }
+
+        function closePostCallModal() {
+            document.getElementById('postCallModal').classList.add('hidden');
+        }
+
+        function setPcmDisposition(dispName, btnEl) {
+            document.getElementById('pcmSelectedDisposition').value = dispName;
+            document.querySelectorAll('.pcm-disp-btn').forEach(btn => {
+                btn.className = "pcm-disp-btn p-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-medium text-left flex items-center gap-1.5 hover:bg-slate-50 transition";
+            });
+            if (btnEl) {
+                btnEl.className = "pcm-disp-btn p-2 rounded-lg border border-emerald-400 bg-emerald-50 text-emerald-950 text-xs font-bold text-left flex items-center gap-1.5 ring-1 ring-emerald-300 transition shadow-sm";
+            } else {
+                const buttons = document.querySelectorAll('.pcm-disp-btn');
+                buttons.forEach(b => {
+                    if (b.textContent.toLowerCase().includes(dispName.toLowerCase().split(' ')[0])) {
+                        b.className = "pcm-disp-btn p-2 rounded-lg border border-emerald-400 bg-emerald-50 text-emerald-950 text-xs font-bold text-left flex items-center gap-1.5 ring-1 ring-emerald-300 transition shadow-sm";
+                    }
+                });
+            }
+        }
+
+        function appendPcmNote(phrase) {
+            const textarea = document.getElementById('pcmNotesInput');
+            if (textarea.value.trim().length > 0) {
+                textarea.value += ' ' + phrase;
+            } else {
+                textarea.value = phrase;
+            }
+        }
+
+        function setPcmFollowUpPreset(type) {
+            const dateInput = document.getElementById('pcmFollowUpDate');
+            const timeInput = document.getElementById('pcmFollowUpTime');
+            let targetDate = new Date();
+            let targetTimeStr = '17:00';
+
+            if (type === 'TODAY_5PM') {
+                targetDate = new Date();
+                targetTimeStr = '17:00';
+            } else if (type === 'TOMORROW_11AM') {
+                targetDate.setDate(targetDate.getDate() + 1);
+                targetTimeStr = '11:00';
+            } else if (type === 'TOMORROW_4PM') {
+                targetDate.setDate(targetDate.getDate() + 1);
+                targetTimeStr = '16:00';
+            } else if (type === 'WEEKEND') {
+                const day = targetDate.getDay();
+                const diff = (6 - day + 7) % 7 || 7;
+                targetDate.setDate(targetDate.getDate() + diff);
+                targetTimeStr = '11:00';
+            }
+
+            const yyyy = targetDate.getFullYear();
+            const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(targetDate.getDate()).padStart(2, '0');
+            dateInput.value = `${yyyy}-${mm}-${dd}`;
+            timeInput.value = targetTimeStr;
+        }
+
+        function savePostCallModal() {
+            const leadId = document.getElementById('pcmLeadId').value;
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            const disposition = document.getElementById('pcmSelectedDisposition').value;
+            const notes = document.getElementById('pcmNotesInput').value.trim();
+            const followUpDate = document.getElementById('pcmFollowUpDate').value;
+            const followUpTime = document.getElementById('pcmFollowUpTime').value;
+            const autoAdvance = document.getElementById('pcmAutoStageCheck')?.checked;
+
+            if (notes) {
+                lead.notes = notes;
+            }
+            lead.lastDisposition = disposition;
+
+            if (followUpDate && followUpTime) {
+                const today = new Date();
+                const yyyy = today.getFullYear();
+                const mm = String(today.getMonth() + 1).padStart(2, '0');
+                const dd = String(today.getDate()).padStart(2, '0');
+                const todayStr = `${yyyy}-${mm}-${dd}`;
+
+                const [h, m] = followUpTime.split(':');
+                const hours = parseInt(h);
+                const ampm = hours >= 12 ? 'PM' : 'AM';
+                const formattedHour = hours % 12 || 12;
+                const timeLabel = `${formattedHour}:${m} ${ampm}`;
+
+                if (followUpDate === todayStr) {
+                    lead.nextFollowUp = `Today, ${timeLabel}`;
+                    lead.isTodayFollowUp = true;
+                } else {
+                    lead.nextFollowUp = `${followUpDate.slice(5)}, ${timeLabel}`;
+                    lead.isTodayFollowUp = false;
+                }
+            }
+
+            // Auto-advance stage if user approved
+            if (autoAdvance) {
+                if (lead.stage === 'NEW' && (disposition.includes('Visit') || disposition.includes('Interested'))) {
+                    lead.stage = 'VISIT';
+                    lead.stageLabel = 'Site Visit Scheduled';
+                    lead.stageColor = 'bg-amber-100 text-amber-800 border-amber-200';
+                    lead.stageDays = 0;
+                } else if (lead.stage === 'VISIT' && (disposition.includes('Token') || disposition.includes('Negotiation'))) {
+                    lead.stage = 'TOKEN';
+                    lead.stageLabel = 'Token / Biana Pending';
+                    lead.stageColor = 'bg-purple-100 text-purple-800 border-purple-200';
+                    lead.stageDays = 0;
+                }
+            }
+
+            lead.lastActive = 'Just now';
+            closePostCallModal();
+            showToast(`✓ Call logged & follow-up scheduled for ${lead.name}!`);
+            renderLeads();
+        }
+
+        // ========================================================
+        // STEP 4: LIVE IN-CALL AI & HINDI NLP SIMULATOR ENGINE
+        // ========================================================
+        const AI_SIM_SCENARIOS = {
+            sc1: {
+                name: "Vikram Singhal (Investor)",
+                phone: "+91 98119 87654",
+                text: "Namaste bhaiya, mujhe ATS Pristine Sector 150 me 4BHK luxury flat dekhna hai. Budget 2.10 Cr tak ready hai. 5 lakh token biana cheque kal de dunga, registry agle mahine karenge."
+            },
+            sc2: {
+                name: "Neha & Amit Sharma",
+                phone: "+91 98711 22334",
+                text: "Paras Tierea Sector 137 me 3BHK flat park facing chahiye. Budget around 85 Lakh hai. SBI bank se 70 lakh home loan sanctioned hai. Shaniwar shaam 4 baje site visit final karo."
+            },
+            sc3: {
+                name: "Rajeshwar Dayal",
+                phone: "+91 98990 11223",
+                text: "Yamuna Expressway Block B me 162 meter authority allotted plot chahiye. 58 lakh budget hai, full cheque payment karunga, turant registry karani hai."
+            },
+            sc4: {
+                name: "Sanjay Gupta",
+                phone: "+91 98105 44332",
+                text: "Gaur City Greater Noida West me ready to move 2BHK flat dekh rahe hain. Maximum budget 52 Lakh hai. Agar deal achi hui toh 2 lakh biana turant transfer kar dunga."
+            }
+        };
+
+        function loadAiScenario(key) {
+            const sc = AI_SIM_SCENARIOS[key];
+            if (!sc) return;
+            const nameEl = document.getElementById('simClientName');
+            const phoneEl = document.getElementById('simClientPhone');
+            const transcriptEl = document.getElementById('simTranscriptInput');
+            if (nameEl) nameEl.value = sc.name;
+            if (phoneEl) phoneEl.value = sc.phone;
+            if (transcriptEl) transcriptEl.value = sc.text;
+            runLiveNlpExtraction();
+            showToast(`Loaded Scenario: ${sc.name}`);
+        }
+
+        function runLiveNlpExtraction() {
+            const transcriptEl = document.getElementById('simTranscriptInput');
+            if (!transcriptEl) return;
+            const text = transcriptEl.value || '';
+
+            // 1. Budget extraction
+            let budget = 'Not Specified';
+            const crMatch = text.match(/(\d+(\.\d+)?)\s*(cr|crore|करोड़)/i);
+            const lakhMatch = text.match(/(\d+(\.\d+)?)\s*(lakh|lakhs|लाख|l)/i);
+            if (crMatch) {
+                budget = `₹${crMatch[1]} Cr`;
+            } else if (lakhMatch) {
+                budget = `₹${lakhMatch[1]} Lakh`;
+            }
+
+            // 2. Token / Biana
+            let token = 'None Mentioned';
+            const tokenMatch = text.match(/(बयाना|टोकन|token|biana|चेक|cheque)\s*(₹?\s*\d+(\.\d+)?\s*(lakh|लाख|k|हज़ार)?)/i) ||
+                               text.match(/(\d+(\.\d+)?\s*(lakh|लाख|k|हज़ार)?)\s*(बयाना|टोकन|token|biana|advance)/i);
+            if (tokenMatch) {
+                token = tokenMatch[0];
+            }
+
+            // 3. Property Type
+            let propType = 'Residential Flat';
+            if (text.match(/4\s*(bhk|बीएचके)/i)) propType = '4BHK Luxury Flat';
+            else if (text.match(/3\s*(bhk|बीएचके)/i)) propType = '3BHK Apartment';
+            else if (text.match(/2\s*(bhk|बीएचके)/i)) propType = '2BHK Budget Flat';
+            else if (text.match(/1\s*(bhk|बीएचके)/i)) propType = '1BHK Studio';
+            else if (text.match(/plot|प्लॉट/i)) propType = 'Residential Plot';
+            else if (text.match(/villa|विला/i)) propType = 'Independent Villa';
+
+            // 4. Locality
+            let locality = 'Noida / NCR';
+            if (text.match(/150/i)) locality = 'Noida Sector 150';
+            else if (text.match(/137/i)) locality = 'Noida Sector 137';
+            else if (text.match(/78/i)) locality = 'Noida Sector 78';
+            else if (text.match(/yamuna/i) || text.match(/यमुना/i)) locality = 'Yamuna Expressway';
+            else if (text.match(/gaur city/i) || text.match(/greater noida/i)) locality = 'Greater Noida West';
+
+            // 5. Loan / Bank
+            let loan = 'Self Funded / Cash';
+            if (text.match(/sbi/i)) loan = 'SBI Home Loan (Approved)';
+            else if (text.match(/hdfc/i)) loan = 'HDFC Home Loan';
+            else if (text.match(/loan|लोन|finance/i)) loan = 'Bank Loan Required';
+
+            // 6. Timeline / Action
+            let timeline = 'Normal Inquiry';
+            if (text.match(/shaniwar|शनिवार|saturday/i)) timeline = 'Saturday 4:00 PM Site Visit';
+            else if (text.match(/ravivar|रविवार|sunday/i)) timeline = 'Sunday 11:00 AM Site Visit';
+            else if (text.match(/kal|कल|tomorrow/i)) timeline = 'Tomorrow Cheque / Meeting';
+            else if (text.match(/visit|विजिट/i)) timeline = 'Site Visit Requested';
+
+            // Update DOM Badges
+            const bBudget = document.getElementById('simBadgeBudget');
+            const bToken = document.getElementById('simBadgeToken');
+            const bType = document.getElementById('simBadgeType');
+            const bLoc = document.getElementById('simBadgeLocality');
+            const bLoan = document.getElementById('simBadgeLoan');
+            const bTime = document.getElementById('simBadgeTimeline');
+
+            if (bBudget) bBudget.textContent = budget;
+            if (bToken) bToken.textContent = token;
+            if (bType) bType.textContent = propType;
+            if (bLoc) bLoc.textContent = locality;
+            if (bLoan) bLoan.textContent = loan;
+            if (bTime) bTime.textContent = timeline;
+
+            return { budget, token, propType, locality, loan, timeline };
+        }
+
+        function convertAiSimToLead() {
+            const nameEl = document.getElementById('simClientName');
+            const phoneEl = document.getElementById('simClientPhone');
+            const transcriptEl = document.getElementById('simTranscriptInput');
+
+            const name = (nameEl ? nameEl.value.trim() : '') || 'AI In-Call Client';
+            const phone = (phoneEl ? phoneEl.value.trim() : '') || '+91 98119 87654';
+            const transcript = (transcriptEl ? transcriptEl.value.trim() : '');
+
+            if (!transcript) {
+                showToast('Pehle transcript box me koi call script type ya select karein!');
+                return;
+            }
+
+            const entities = runLiveNlpExtraction() || {
+                budget: '₹90 Lakh',
+                token: '₹2 Lakh',
+                propType: '3BHK Apartment',
+                locality: 'Noida Sector 137',
+                loan: 'SBI Home Loan',
+                timeline: 'Saturday 4:00 PM Site Visit'
+            };
+
+            const isVisitAgreed = entities.timeline.includes('Visit') || entities.timeline.includes('Site');
+            const newStage = isVisitAgreed ? 'VISIT' : 'NEW';
+            const newId = 'lead-' + (Date.now() % 10000);
+
+            const newLead = {
+                id: newId,
+                name: name,
+                phone: phone,
+                budget: entities.budget !== 'Not Specified' ? entities.budget : '₹90 Lakh',
+                location: entities.locality,
+                type: entities.propType.includes('3BHK') ? '3BHK' : entities.propType.includes('4BHK') ? '4BHK' : entities.propType.includes('Plot') ? 'PLOT' : '2BHK',
+                stage: newStage,
+                stageLabel: newStage === 'VISIT' ? 'Site Visit Scheduled' : 'New Inquiry',
+                stageColor: newStage === 'VISIT' ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-blue-100 text-blue-800 border-blue-200',
+                stageDays: 0,
+                nextFollowUp: entities.timeline !== 'Normal Inquiry' ? entities.timeline : 'Today, 6:00 PM',
+                isTodayFollowUp: true,
+                lastDisposition: 'Edge AI Verified',
+                notes: `🎙️ Edge AI: ${transcript} [Token: ${entities.token} | Loan: ${entities.loan}]`,
+                lastActive: 'Just now'
+            };
+
+            leads.unshift(newLead);
+            showToast(`⚡ Lead "${name}" successfully converted & added to Pipeline!`);
+            
+            // Switch to Leads Tab so broker immediately sees the live card in Kanban
+            switchTab('leads');
+            renderLeads();
+        }
+
+        // Render AI Notes
+        function renderAiNotes() {
+            const container = document.getElementById('aiNotesContainer');
+            container.innerHTML = `
+                <div class="divide-y divide-slate-100">
+                    ${aiNotes.map(item => `
+                        <div class="p-5 hover:bg-slate-50 transition space-y-3">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                <div>
+                                    <h4 class="font-bold text-sm text-slate-900">${item.clientName}</h4>
+                                    <div class="text-xs text-slate-500">${item.phone} • ${item.time}</div>
+                                </div>
+                                <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 font-semibold border border-emerald-200">
+                                    ● AI Transcription Verified
+                                </span>
+                            </div>
+
+                            <div class="bg-amber-50/70 p-3 rounded-lg border border-amber-100 text-xs text-slate-800 leading-relaxed font-sans">
+                                <b>🎙️ Speech-to-Text Summary:</b><br/>
+                                ${item.summaryHindi}
+                            </div>
+
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                <span class="text-[11px] font-bold text-slate-500 mr-1">Detected Keywords:</span>
+                                ${item.detectedKeywords.map(k => `
+                                    <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-800 border border-blue-200 font-mono text-[11px]">
+                                        ${k}
+                                    </span>
+                                `).join('')}
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs pt-1">
+                                <div class="text-slate-600">
+                                    <b>⚡ Next Action:</b> ${item.actionItem}
+                                </div>
+                                <button onclick="navigator.clipboard.writeText('${item.summaryHindi}'); showToast('AI summary copied to clipboard!')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded text-slate-700 font-semibold">
+                                    📋 Copy
+                                </button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Render Inventory
+        // ==========================================
+        // STEP 6: INVENTORY CRUD & WHATSAPP STORY
+        // ==========================================
+        function renderInventory() {
+            const container = document.getElementById('inventoryGrid');
+            const typeFilter = document.getElementById('invTypeFilter')?.value || 'ALL';
+            const statusFilter = document.getElementById('invStatusFilter')?.value || 'ALL';
+
+            const filtered = inventory.filter(u => {
+                const matchType = (typeFilter === 'ALL') || (u.type === typeFilter);
+                const matchStatus = (statusFilter === 'ALL') || (u.status === statusFilter);
+                return matchType && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-xl border border-slate-200">
+                        <p class="text-sm font-semibold">Koi inventory unit nahi mili!</p>
+                        <p class="text-xs mt-1">Naya unit add karein ya filters change karein.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(unit => {
+                let statusBadgeClass = 'bg-emerald-100 text-emerald-800 border-emerald-200';
+                if (unit.status === 'UNDER_TOKEN') statusBadgeClass = 'bg-purple-100 text-purple-800 border-purple-200';
+                if (unit.status === 'SOLD') statusBadgeClass = 'bg-slate-200 text-slate-700 border-slate-300';
+
+                return `
+                <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="flex items-start justify-between gap-1">
+                            <div>
+                                <h4 class="font-bold text-sm text-slate-900">${unit.project}</h4>
+                                <div class="text-xs text-slate-500 font-mono mt-0.5">${unit.unit}</div>
+                            </div>
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded-full border ${statusBadgeClass}">
+                                ${unit.status}
+                            </span>
+                        </div>
+
+                        <div class="text-base font-black text-blue-950 mt-2">${unit.price}</div>
+                        <div class="text-xs text-slate-600 font-medium">${unit.area} • 📍 ${unit.location}</div>
+                        
+                        <div class="mt-2 text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-tight">
+                            ${unit.features}
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 space-y-1.5">
+                        <!-- Primary Pitch Actions -->
+                        <div class="grid grid-cols-2 gap-1.5">
+                            <button onclick="pitchUnitOnWhatsApp('${unit.id}')" 
+                                    class="py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-bold text-xs shadow-sm flex items-center justify-center gap-1 transition">
+                                💬 <span>WhatsApp</span>
+                            </button>
+                            <button onclick="openMatchBuyersModal('${unit.id}')" 
+                                    class="py-1.5 px-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 font-bold rounded-lg text-xs border border-indigo-200 flex items-center justify-center gap-1 transition">
+                                🎯 <span>Match (Leads)</span>
+                            </button>
+                        </div>
+
+                        <!-- Secondary Actions: Story Link, Edit, Delete -->
+                        <div class="flex items-center justify-between pt-1 text-[11px]">
+                            <button onclick="shareStoryLink('${unit.id}', '${unit.project}')" class="text-blue-700 hover:text-blue-900 font-semibold flex items-center gap-1">
+                                📲 <span>Copy Story</span>
+                            </button>
+                            <div class="flex items-center gap-1">
+                                <button onclick="openAddUnitModal('${unit.id}')" class="px-1.5 py-0.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded font-semibold text-xs" title="Edit Unit">
+                                    ✏️ Edit
+                                </button>
+                                <button onclick="deleteUnit('${unit.id}')" class="px-1.5 py-0.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded font-semibold text-xs" title="Delete Unit">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        // 1-Click WhatsApp Property Pitch Generator
+        function pitchUnitOnWhatsApp(unitId) {
+            const unit = inventory.find(u => u.id === unitId);
+            if (!unit) return;
+            const storyUrl = `http://localhost:8080/s/${unit.id}`;
+            const message = `Namaste! Check out this ${unit.type} property at ${unit.project} (${unit.location}).\nAsking Price: ${unit.price} | Area: ${unit.area}\nFeatures: ${unit.features}\n\n👉 View 3D Mobile Story & Details: ${storyUrl}`;
+            const waUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        // Share story link
+        function shareStoryLink(unitId, projectName) {
+            const storyUrl = `http://localhost:8080/s/${unitId}`;
+            navigator.clipboard.writeText(storyUrl);
+            showToast(`Story link for ${projectName} copied! (${storyUrl})`);
+        }
+
+        // Add / Edit Unit Modal Controllers
+        function openAddUnitModal(editId) {
+            const modalTitle = document.getElementById('unitModalTitle');
+            const editUnitIdInput = document.getElementById('editUnitId');
+            const form = document.getElementById('newUnitForm');
+
+            if (editId) {
+                const unit = inventory.find(u => u.id === editId);
+                if (unit) {
+                    modalTitle.textContent = `Edit Unit: ${unit.project} (${unit.unit})`;
+                    editUnitIdInput.value = unit.id;
+                    document.getElementById('unitProject').value = unit.project;
+                    document.getElementById('unitNumber').value = unit.unit;
+                    document.getElementById('unitLocation').value = unit.location;
+                    document.getElementById('unitType').value = unit.type;
+                    document.getElementById('unitArea').value = unit.area;
+                    document.getElementById('unitPrice').value = unit.price;
+                    document.getElementById('unitStatus').value = unit.status;
+                    document.getElementById('unitFeatures').value = unit.features;
+                }
+            } else {
+                modalTitle.textContent = "Add New Property Unit";
+                editUnitIdInput.value = "";
+                form.reset();
+            }
+
+            document.getElementById('addUnitModal').classList.remove('hidden');
+        }
+
+        function closeAddUnitModal() {
+            document.getElementById('addUnitModal').classList.add('hidden');
+        }
+
+        function handleSaveUnit(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editUnitId').value;
+            const project = document.getElementById('unitProject').value.trim();
+            const unit = document.getElementById('unitNumber').value.trim();
+            const location = document.getElementById('unitLocation').value.trim();
+            const type = document.getElementById('unitType').value;
+            const area = document.getElementById('unitArea').value.trim();
+            const price = document.getElementById('unitPrice').value.trim();
+            const status = document.getElementById('unitStatus').value;
+            const features = document.getElementById('unitFeatures').value.trim();
+
+            if (editId) {
+                const existing = inventory.find(u => u.id === editId);
+                if (existing) {
+                    existing.project = project;
+                    existing.unit = unit;
+                    existing.location = location;
+                    existing.type = type;
+                    existing.area = area;
+                    existing.price = price;
+                    existing.status = status;
+                    existing.features = features;
+                    showToast(`Unit ${project} (${unit}) updated!`);
+                }
+            } else {
+                const newId = project.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 5) + Math.floor(100 + Math.random() * 900);
+                inventory.unshift({
+                    id: newId,
+                    project,
+                    unit,
+                    location,
+                    type,
+                    area,
+                    price: price.startsWith('₹') ? price : '₹' + price,
+                    status,
+                    features: features || 'Ready to move • Prime locality'
+                });
+                showToast(`New unit "${project} - ${unit}" added to inventory!`);
+            }
+
+            closeAddUnitModal();
+            renderInventory();
+        }
+
+        function deleteUnit(unitId) {
+            const unit = inventory.find(u => u.id === unitId);
+            if (!unit) return;
+            inventory = inventory.filter(u => u.id !== unitId);
+            renderInventory();
+            showToast(`Unit "${unit.project}" removed from inventory.`);
+        }
+
+        // Match Unit with Leads
+        function openMatchBuyersModal(unitId) {
+            const unit = inventory.find(u => u.id === unitId);
+            if (!unit) return;
+
+            document.getElementById('matchModalUnitTitle').textContent = `${unit.project} (${unit.type})`;
+            document.getElementById('matchModalUnitPrice').textContent = unit.price;
+
+            const unitLocFirstWord = unit.location.toLowerCase().split(' ')[0];
+            const matches = leads.filter(l => {
+                const locMatch = l.location.toLowerCase().includes(unitLocFirstWord) || 
+                                 unit.location.toLowerCase().includes(l.location.toLowerCase().split(' ')[0]);
+                const typeMatch = (l.type === unit.type);
+                return locMatch || typeMatch;
+            });
+
+            document.getElementById('matchCountLabel').textContent = `${matches.length} Matching Prospects in Pipeline`;
+
+            const container = document.getElementById('matchedBuyersListContainer');
+            if (matches.length === 0) {
+                container.innerHTML = '<div class="py-6 text-center text-xs text-slate-400">Filhaal koi exact matching buyer nahi mila.</div>';
+            } else {
+                container.innerHTML = matches.map(lead => {
+                    const pitchMsg = `Namaste ${lead.name}, aapke budget (${lead.budget}) aur requirement ke mutabik Sector me ${unit.project} ${unit.type} (${unit.price}) ka best unit available hua hai. View details: http://localhost:8080/s/${unit.id}`;
+                    const waLink = `https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(pitchMsg)}`;
+
+                    return `
+                        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2 text-xs">
+                            <div>
+                                <div class="font-bold text-slate-900">${lead.name}</div>
+                                <div class="text-[11px] text-slate-500 font-mono">${lead.phone} • Budget: <b class="text-blue-900">${lead.budget}</b></div>
+                                <div class="text-[10px] text-slate-400 mt-0.5">Looking for: ${lead.type} in ${lead.location}</div>
+                            </div>
+                            <a href="${waLink}" target="_blank" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition">
+                                💬 <span>Pitch</span>
+                            </a>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            document.getElementById('matchBuyersModal').classList.remove('hidden');
+        }
+
+        function closeMatchBuyersModal() {
+            document.getElementById('matchBuyersModal').classList.add('hidden');
+        }
+
+        // Modal Controls & Dynamic Custom Schema (Step 5)
+        function openSchemaManagerModal() {
+            renderSchemaManagerList();
+            document.getElementById('schemaManagerModal').classList.remove('hidden');
+        }
+
+        function closeSchemaManagerModal() {
+            document.getElementById('schemaManagerModal').classList.add('hidden');
+            renderLeads();
+        }
+
+        function renderSchemaManagerList() {
+            const container = document.getElementById('schemaFieldsListContainer');
+            if (!container) return;
+            if (customSchemaFields.length === 0) {
+                container.innerHTML = '<div class="text-xs text-slate-400 py-3 text-center">Koi custom field nahi hai. Niche diye form se naya field add karein.</div>';
+                return;
+            }
+            container.innerHTML = customSchemaFields.map(f => `
+                <div class="flex items-center justify-between p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-xs">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base">${f.icon || '🏷️'}</span>
+                        <div>
+                            <div class="font-bold text-slate-800">${f.label}</div>
+                            <div class="text-[10px] text-slate-500 font-mono truncate max-w-xs">${f.options.join(', ')}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] px-1.5 py-0.5 rounded ${f.showBadgeOnCard ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200 text-slate-600'} font-semibold">
+                            ${f.showBadgeOnCard ? 'Card Badge: ON' : 'Card Badge: OFF'}
+                        </span>
+                        <button type="button" onclick="deleteCustomSchemaField('${f.key}')" class="text-red-500 hover:text-red-700 font-bold px-1.5 py-0.5 rounded hover:bg-red-50 text-xs" title="Delete Field">
+                            🗑️
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function handleAddNewSchemaField(e) {
+            e.preventDefault();
+            const label = document.getElementById('newSchemaLabel').value.trim();
+            const icon = document.getElementById('newSchemaIcon').value.trim() || '🏷️';
+            const optionsStr = document.getElementById('newSchemaOptions').value.trim();
+            const showBadge = document.getElementById('newSchemaShowBadge').checked;
+
+            if (!label || !optionsStr) return;
+
+            const key = label.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const options = optionsStr.split(',').map(s => s.trim()).filter(Boolean);
+
+            customSchemaFields.push({
+                key,
+                label,
+                icon,
+                options,
+                showBadgeOnCard: showBadge
+            });
+
+            document.getElementById('newSchemaFieldForm').reset();
+            renderSchemaManagerList();
+            showToast(`Custom schema field "${label}" added!`);
+        }
+
+        function deleteCustomSchemaField(key) {
+            customSchemaFields = customSchemaFields.filter(f => f.key !== key);
+            renderSchemaManagerList();
+            showToast('Custom field removed.');
+        }
+
+        function renderDynamicLeadFormFields() {
+            const container = document.getElementById('dynamicSchemaFieldsContainer');
+            if (!container) return;
+            if (customSchemaFields.length === 0) {
+                container.innerHTML = '<div class="text-[11px] text-slate-400 col-span-2">No custom qualification fields defined.</div>';
+                return;
+            }
+            container.innerHTML = customSchemaFields.map(f => `
+                <div>
+                    <label class="block font-semibold text-slate-700 mb-0.5 text-[11px]">${f.icon} ${f.label}</label>
+                    <select id="dynField_${f.key}" class="w-full px-2 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:ring-1 focus:ring-blue-600 text-xs">
+                        <option value="">-- Select ${f.label} --</option>
+                        ${f.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                </div>
+            `).join('');
+        }
+
+        function filterByPersona(personaVal) {
+            currentPersonaFilter = personaVal;
+            renderLeads();
+            if (personaVal !== 'ALL') {
+                showToast(`Filtered by Persona: ${personaVal}`);
+            } else {
+                showToast("Showing all buyer personas.");
+            }
+        }
+
+        function openAddLeadModal() {
+            renderDynamicLeadFormFields();
+            document.getElementById('addLeadModal').classList.remove('hidden');
+        }
+
+        function closeAddLeadModal() {
+            document.getElementById('addLeadModal').classList.add('hidden');
+        }
+
+        function handleSaveLead(e) {
+            e.preventDefault();
+            const name = document.getElementById('inputClientName').value.trim();
+            const phone = document.getElementById('inputClientPhone').value.trim();
+            const budget = document.getElementById('inputBudget').value.trim();
+            const location = document.getElementById('inputLocality').value;
+            const type = document.getElementById('inputType').value;
+            const stage = document.getElementById('inputStage').value;
+            const notes = document.getElementById('inputNotes').value.trim();
+
+            let stageLabel = 'New Inquiry';
+            let stageColor = 'bg-blue-100 text-blue-800 border-blue-200';
+            if (stage === 'VISIT') { stageLabel = 'Site Visit Scheduled'; stageColor = 'bg-amber-100 text-amber-800 border-amber-200'; }
+            if (stage === 'TOKEN') { stageLabel = 'Token / Biana Pending'; stageColor = 'bg-purple-100 text-purple-800 border-purple-200'; }
+            if (stage === 'WON') { stageLabel = 'Deal Closed (Won)'; stageColor = 'bg-emerald-100 text-emerald-800 border-emerald-200'; }
+
+            // Extract Dynamic Custom Schema Attributes
+            const customAttributes = {};
+            customSchemaFields.forEach(f => {
+                const el = document.getElementById(`dynField_${f.key}`);
+                if (el && el.value) {
+                    customAttributes[f.key] = el.value;
+                }
+            });
+
+            const newLead = {
+                id: 'lead-' + (leads.length + 1),
+                name,
+                phone,
+                budget: budget.startsWith('₹') ? budget : '₹' + budget,
+                location,
+                type,
+                stage,
+                stageLabel,
+                stageColor,
+                customAttributes,
+                notes: notes || 'Direct lead intake via broker web portal.',
+                lastActive: 'Just now'
+            };
+
+            leads.unshift(newLead);
+            closeAddLeadModal();
+            document.getElementById('newLeadForm').reset();
+            renderLeads();
+            showToast(`New client lead '${name}' added & synced!`);
+        }
+
+        // Privacy Mode Toggle
+        function togglePrivacyMode() {
+            isLocalOnly = !isLocalOnly;
+            const pill = document.getElementById('syncModePill');
+            const text = document.getElementById('syncModeText');
+            if (isLocalOnly) {
+                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-50 border border-purple-200 text-xs font-medium text-purple-800 cursor-pointer";
+                text.textContent = "Local-Only Confidential";
+                showToast("Privacy Mode Enabled: Your data will stay 100% on this device.");
+            } else {
+                pill.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-800 cursor-pointer";
+                text.textContent = "Cloud Sync (Active)";
+                showToast("Cloud Sync Active: Delta updates synced with company cockpit.");
+            }
+        }
+
+        // Toast Message
+        function showToast(msg) {
+            const toast = document.getElementById('toastMessage');
+            const toastText = document.getElementById('toastText');
+            toastText.textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3500);
+        }
+    </script>
+</body>
+</html>

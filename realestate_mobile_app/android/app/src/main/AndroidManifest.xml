@@ -9,7 +9,7 @@
     <!-- Truecaller-Compatible Floating Window Overlay -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- On-Device Speech & Audio -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -59,7 +59,11 @@
             android:name=".overlay.FloatingWindowService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="phoneCall" />
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Floating in-call assistant overlay" />
+        </service>
 
         <!-- Accessibility Service for On-Device Audio Streaming -->
         <service

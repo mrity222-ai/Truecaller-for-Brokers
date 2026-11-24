@@ -34,7 +34,7 @@ class RealEstateApp extends StatelessWidget {
           primary: const Color(0xFF0F4C81),
           secondary: const Color(0xFFE5A93C), // Warm Gold for Real Estate
         ),
-        cardTheme: CardTheme(
+        cardTheme: CardThemeData(
           elevation: 1,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),

@@ -24,8 +24,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.realestate.crm"
-    compileSdkVersion 34
-    ndkVersion "25.1.8937393"
+    compileSdkVersion 35
+    ndkVersion "28.2.13676358"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -43,7 +43,7 @@ android {
     defaultConfig {
         applicationId "com.realestate.crm"
         minSdkVersion 24
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true

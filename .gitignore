@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+server_log.txt
 
 # IntelliJ related
 *.iml
@@ -49,11 +50,10 @@ realestate_backend_api/.gradle/
 realestate_backend_api/*.jar
 realestate_backend_api/*.war
 
-# Documentation, Readme and local tracker exclusions (Pure code repository)
+# Documentation and Readme exclusions (Pure code repository)
 *.md
 *.doc
 *.docx
 *.pdf
-*.csv
 README*
 readme*
